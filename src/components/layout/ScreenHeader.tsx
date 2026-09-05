@@ -1,0 +1,5 @@
+import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { Icon } from "@/components/ui/Icon";
+import { cn } from "@/lib/cn";
+export function ScreenHeader({ title, subtitle, back, onBack, right, className }: { title: ReactNode; subtitle?: ReactNode; back?: boolean; onBack?: () => void; right?: ReactNode; className?: string }) { const navigate = useNavigate(); const handleBack = onBack ?? (() => navigate(-1)); return <header className={cn("sticky top-0 z-20 flex items-center gap-3 border-b border-border/60 bg-bg/80 px-4 py-3 backdrop-blur-xl", className)}>{back && <button onClick={handleBack} aria-label="Back" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg hairline text-muted transition hover:text-content"><Icon name="ArrowLeft" className="h-5 w-5" /></button>}<div className="min-w-0 flex-1"><h1 className="truncate text-base font-bold text-content">{title}</h1>{subtitle && <p className="truncate text-xs text-muted">{subtitle}</p>}</div>{right}</header>; }
