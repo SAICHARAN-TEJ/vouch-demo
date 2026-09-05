@@ -1,0 +1,2 @@
+# Ultralytics YOLO (v8/v11)
+ultralytics>=8.3.0
