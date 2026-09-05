@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   Vouch design tokens — dark "road intelligence" aesthetic.
+   Colours are RGB triplets so Tailwind can apply opacity (see tailwind.config.js).
+   Reskin the whole app by editing these values alone.
+   ===================================================================== */
+:root {
+  --c-bg: 10 14 22; /* #0A0E16 */
+  --c-surface: 18 24 38; /* #121826 */
+  --c-elevated: 30 39 64; /* #1E2740 */
+  --c-border: 38 49 73; /* #263149 */
+  --c-muted: 139 149 173; /* #8B95AD */
+  --c-text: 231 236 245; /* #E7ECF5 */
+
+  --c-primary: 31 209 163; /* #1FD1A3 teal-green */
+  --c-primary-fg: 4 21 15; /* near-black on primary */
+  --c-accent: 76 141 255; /* #4C8DFF electric blue */
+
+  --c-justified: 47 208 138; /* #2FD08A */
+  --c-caution: 245 179 63; /* #F5B33F */
+  --c-danger: 247 106 106; /* #F76A6A */
+  --c-info: 56 189 248; /* #38BDF8 */
+
+  --c-hazard-pothole: 255 107 87; /* #FF6B57 */
+  --c-hazard-speedbreaker: 245 179 63; /* #F5B33F */
+  --c-hazard-waterlogging: 76 141 255; /* #4C8DFF */
+  --c-hazard-debris: 185 140 255; /* #B98CFF */
+
+  --phone-w: 430px;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1100px 620px at 50% -12%, rgb(var(--c-primary) / 0.09), transparent 60%),
+    radial-gradient(900px 520px at 92% 0%, rgb(var(--c-accent) / 0.08), transparent 55%),
+    rgb(var(--c-bg));
+  color: rgb(var(--c-text));
+  font-family: theme("fontFamily.sans");
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+@layer components {
+  /* Hairline border that reads crisply on the dark surface. */
+  .hairline {
+    @apply border border-border/70;
+  }
+
+  .card {
+    @apply rounded-2xl bg-surface/90 hairline shadow-card;
+  }
+
+  .glass {
+    @apply bg-surface/70 backdrop-blur-xl hairline;
+  }
+
+  /* Tabular figures for stats/scores so digits don't jitter. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--c-text)),
+      rgb(var(--c-primary))
+    );
+  }
+
+  /* Faint engineering grid used behind maps / hero surfaces. */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgb(var(--c-border) / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--c-border) / 0.5) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Respect reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
