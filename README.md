@@ -9,10 +9,6 @@ may have happened instead of judging motion alone.
 
 ### **https://vouch-demo-beige.vercel.app**
 
-This is the primary, verified production deployment. It was verified from
-GitHub `main` at application commit
-`81cae8a1ad7266ec4014aa9692e3eb5b88ada03b`.
-
 ## Project Overview
 
 Vouch combines simulated ride telemetry, nearby road hazards, and rear-approach
