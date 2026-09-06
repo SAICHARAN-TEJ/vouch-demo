@@ -10,6 +10,12 @@ import { useRider, useRoadEvents, useHistory, useTodayDistance } from "@/hooks/q
 import { useScoreStore } from "@/store/scoreStore";
 import { useRideStore } from "@/store/rideStore";
 import { DEMO_TODAY_DISTANCE_KM } from "@/config/demoData";
+import {
+  AnimatedCard,
+  AnimatedNumber,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
 
 function trustLabel(score: number): string {
   if (score >= 85) return "Trusted rider";
@@ -64,9 +70,11 @@ export function Home() {
 
       {/* Score hero card */}
       <Card glow className="flex items-center gap-5">
-        <ProgressRing value={score} size={120} stroke={11}>
+        <ProgressRing value={score} size={120} stroke={11} label="Vouch Score">
           <div className="text-center">
-            <div className="tnum text-3xl font-extrabold text-content">{score}</div>
+            <div className="tnum text-3xl font-extrabold text-content">
+              <AnimatedNumber value={score} duration="slow" />
+            </div>
             <div className="text-[10px] font-semibold uppercase tracking-wide text-muted">
               / 100
             </div>
@@ -99,45 +107,59 @@ export function Home() {
       {/* Today stats */}
       <div>
         <h2 className="mb-2 text-sm font-bold text-content">Today</h2>
-        <div className="grid grid-cols-3 gap-2.5">
-          <StatTile
-            icon="Route"
-            value={todayDistance}
-            label="Distance"
-            sub="km"
-          />
-          <StatTile
-            icon="Activity"
-            value={history.length}
-            label="Road events"
-            accent="text-accent"
-          />
-          <StatTile
-            icon="ShieldCheck"
-            value={verifiedHazards}
-            label="Verified"
-            sub="hazards"
-            accent="text-justified"
-          />
-        </div>
+        <StaggerContainer className="grid grid-cols-3 gap-2.5" delay={80}>
+          <StaggerItem>
+            <StatTile
+              icon="Route"
+              value={todayDistance}
+              label="Distance"
+              sub="km"
+              className="h-full"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <StatTile
+              icon="Activity"
+              value={history.length}
+              label="Road events"
+              accent="text-accent"
+              className="h-full"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <StatTile
+              icon="ShieldCheck"
+              value={verifiedHazards}
+              label="Verified"
+              sub="hazards"
+              accent="text-justified"
+              className="h-full"
+            />
+          </StaggerItem>
+        </StaggerContainer>
       </div>
 
       {/* Shared intelligence teaser */}
-      <Card
-        onClick={() => navigate("/map")}
-        className="flex cursor-pointer items-center gap-3 hover:bg-white/[0.04]"
-      >
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon name="Map" className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="font-semibold text-content">Shared road map</div>
-          <p className="text-xs text-muted">
-            {roadEvents.length} hazards reported by riders nearby
-          </p>
-        </div>
-        <Icon name="ChevronRight" className="h-5 w-5 text-muted" />
-      </Card>
+      <AnimatedCard interactive noEntrance className="p-0">
+        <Card padded={false} className="overflow-hidden border-0 bg-transparent shadow-none">
+          <button
+            type="button"
+            onClick={() => navigate("/map")}
+            className="flex min-h-[76px] w-full items-center gap-3 p-4 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          >
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
+              <Icon name="Map" className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-content">Shared road map</div>
+              <p className="text-xs text-muted">
+                {roadEvents.length} hazards reported by riders nearby
+              </p>
+            </div>
+            <Icon name="ChevronRight" className="h-5 w-5 text-muted" />
+          </button>
+        </Card>
+      </AnimatedCard>
     </div>
   );
 }

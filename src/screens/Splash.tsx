@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Brand } from "@/components/ui/Brand";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 
@@ -15,20 +16,18 @@ export function Splash() {
   return (
     <div className="bg-grid relative flex h-full flex-col items-center justify-center overflow-hidden px-8 text-center">
       {/* Ambient glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-8 top-1/4 h-64 bg-primary/15 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-8 top-1/2 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-      <div className="relative animate-scale-in">
-        <img
-          src="/vouch.svg"
-          width={92}
-          height={92}
-          alt="Vouch"
-          className="mx-auto animate-float drop-shadow-[0_0_30px_rgb(var(--c-primary)/0.5)]"
-        />
-      </div>
+      <Brand
+        size={92}
+        showText={false}
+        className="relative animate-float drop-shadow-[0_0_30px_rgb(var(--c-primary)/0.5)]"
+      />
 
       <div className="relative mt-6 animate-fade-up">
-        <h1 className="text-gradient text-4xl font-extrabold tracking-tight">Vouch</h1>
+        <p className="eyebrow mb-2 text-primary/80">Instrument-grade road intelligence</p>
+        <h1 className="display text-gradient text-5xl font-extrabold tracking-tight">Vouch</h1>
       </div>
 
       <p className="relative mt-4 max-w-[24ch] text-balance text-base font-medium text-muted animate-fade-up [animation-delay:150ms]">
