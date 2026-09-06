@@ -44,7 +44,7 @@ export function Splash() {
         </Button>
       </div>
 
-      <p className="absolute bottom-6 text-xs text-muted/70">
+      <p className="absolute bottom-6 text-xs text-muted/80">
         Road intelligence for riders · Demo
       </p>
     </div>

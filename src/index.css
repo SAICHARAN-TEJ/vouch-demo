@@ -3,37 +3,121 @@
 @tailwind utilities;
 
 /* =====================================================================
-   Vouch design tokens — dark "road intelligence" aesthetic.
-   Colours are RGB triplets so Tailwind can apply opacity (see tailwind.config.js).
-   Reskin the whole app by editing these values alone.
+   VOUCH — "Instrument-grade road intelligence"
+   ---------------------------------------------------------------------
+   A dark, telemetry-influenced system. Engineered, not decorated.
+   Everything is driven by the RGB-channel variables below so the whole
+   app can be reskinned from this block alone. Tailwind consumes them via
+   `rgb(var(--c-x) / <alpha-value>)` aliases in tailwind.config.js.
    ===================================================================== */
 :root {
-  --c-bg: 10 14 22; /* #0A0E16 */
-  --c-surface: 18 24 38; /* #121826 */
-  --c-elevated: 30 39 64; /* #1E2740 */
-  --c-border: 38 49 73; /* #263149 */
-  --c-muted: 139 149 173; /* #8B95AD */
-  --c-text: 231 236 245; /* #E7ECF5 */
+  /* ---- Substrate: cold, slightly blue-shifted graphite -------------- */
+  --c-bg: 6 10 16; /* #060A10 — deepest, the "off" state */
+  --c-surface: 13 19 28; /* #0D131C — cards sit here */
+  --c-elevated: 22 31 44; /* #161F2C — chips, inputs, hovered rows */
+  --c-border: 40 54 71; /* #283647 — hairlines */
+  /* #96A6B8. CONTRAST BUDGET — read this before lowering an alpha.
+     At full opacity this is ~8:1 on --c-bg. But muted is almost always
+     composited at reduced alpha, and the type scale is anchored low
+     (xs 12.5px, sm 13.5px, StatTile sub 11px), so EVERY muted use is
+     NORMAL text and needs 4.5:1, not the 3:1 large-text allowance.
+     Measured composited ratios:
+       /70  ~4.2:1   FAILS AA — PROHIBITED for text
+       /75  ~5.05:1  below the permitted floor — PROHIBITED for text
+       /80  ~5.2:1 over --c-bg, ~5.14:1 over the card surface
+     HARD FLOOR: /80 is the MINIMUM permitted alpha for muted TEXT.
+     /70 and below is for decorative rules, dividers and icons only —
+     never for anything a user has to read. */
+  --c-muted: 150 166 184;
+  --c-text: 233 240 246; /* #E9F0F6 — 15.4:1 on --c-bg */
 
-  --c-primary: 31 209 163; /* #1FD1A3 teal-green */
-  --c-primary-fg: 4 21 15; /* near-black on primary */
-  --c-accent: 76 141 255; /* #4C8DFF electric blue */
+  /* ---- Signal: a sharp, slightly acid teal. Not SaaS mint. ---------- */
+  --c-primary: 34 227 176; /* #22E3B0 — the instrument needle */
+  --c-primary-fg: 3 18 14; /* #03120E — legible on primary (13.9:1) */
+  /* Accent is a cold cyan-blue, one hop off "electric blue" so the pair
+     reads as two instrument channels rather than a gradient. */
+  --c-accent: 96 165 250; /* #60A5FA */
+  /* A rarely-used third channel: signal violet for "aggregated/shared". */
+  --c-signal: 167 139 250; /* #A78BFA */
 
-  --c-justified: 47 208 138; /* #2FD08A */
-  --c-caution: 245 179 63; /* #F5B33F */
-  --c-danger: 247 106 106; /* #F76A6A */
-  --c-info: 56 189 248; /* #38BDF8 */
+  /* ---- Status --------------------------------------------------------- */
+  --c-justified: 52 214 145; /* #34D691 */
+  --c-caution: 250 190 88; /* #FABE58 */
+  --c-danger: 250 116 116; /* #FA7474 */
+  --c-info: 86 198 248; /* #56C6F8 */
 
-  --c-hazard-pothole: 255 107 87; /* #FF6B57 */
-  --c-hazard-speedbreaker: 245 179 63; /* #F5B33F */
-  --c-hazard-waterlogging: 76 141 255; /* #4C8DFF */
-  --c-hazard-debris: 185 140 255; /* #B98CFF */
+  /* ---- Hazard channels ----------------------------------------------- */
+  --c-hazard-pothole: 255 116 94; /* #FF745E */
+  --c-hazard-speedbreaker: 250 190 88; /* #FABE58 */
+  --c-hazard-waterlogging: 96 165 250; /* #60A5FA */
+  --c-hazard-debris: 167 139 250; /* #A78BFA */
 
+  /* ---- Type ---------------------------------------------------------- */
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Manrope, Inter, ui-sans-serif, sans-serif;
+
+  /* ---- Layout -------------------------------------------------------- */
   --phone-w: 430px;
+
+  /* =================================================================
+     MOTION TOKENS — MIRROR, NOT SOURCE.
+     src/hooks/useAnimationConfig.ts is CANONICAL. Every value below is
+     copied from `EASE_CSS`, `DURATION` and `STAGGER` in that file.
+     Change the hook first, then mirror here, then mirror into
+     tailwind.config.js. The mirror map lives in the hook's header.
+     ================================================================= */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-hover: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-dramatic: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* Timing scale. micro → ambient. Mirrors DURATION. */
+  --dur-micro: 180ms;
+  --dur-fast: 240ms;
+  --dur-entrance: 480ms;
+  --dur-slow: 600ms;
+  --dur-page: 700ms;
+  --dur-ambient: 14s;
+
+  /* Stagger steps. Mirrors STAGGER (tight / base / loose). */
+  --stagger-tight: 50ms;
+  --stagger-base: 70ms;
+  --stagger-loose: 100ms;
+  /* Back-compat alias. Do not add new consumers — use --stagger-base. */
+  --stagger: var(--stagger-base);
+
+  /* =================================================================
+     ELEVATION LANGUAGE — exactly three named levels, all hue-tinted.
+     Level 0 (flush)  : no shadow, hairline only. Rows, list items.
+     Level 1 (raised) : cards at rest. Cool shadow + primary breath.
+     Level 2 (lifted) : hovered/active cards, sheets, the nav bar.
+     Shadows are never neutral gray — they carry the primary hue so the
+     dark UI reads as backlit glass instead of paper.
+     ================================================================= */
+  --shadow-raised: 0 1px 0 0 rgb(255 255 255 / 0.04) inset,
+    0 2px 6px -2px rgb(2 10 14 / 0.7), 0 10px 26px -12px rgb(var(--c-primary) / 0.13);
+  --shadow-lifted: 0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+    0 6px 14px -4px rgb(2 10 14 / 0.78), 0 22px 48px -18px rgb(var(--c-primary) / 0.24);
+  --shadow-signal: 0 0 0 1px rgb(var(--c-primary) / 0.32),
+    0 0 22px -6px rgb(var(--c-primary) / 0.4), 0 10px 30px -14px rgb(var(--c-primary) / 0.3);
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Global focus ring. Two-tone so it survives on both dark and tinted
+   surfaces: dark core + primary halo. */
+/* No `border-radius` here. This rule sits later in the stylesheet than
+   .rounded-control / .rounded-full / .rounded-panel at equal specificity
+   (0,1,0), so setting a radius here silently overrode the corner of every
+   focused pill, panel and control. The outline follows the element's own
+   radius, which is what we want. */
+:focus-visible {
+  outline: 2px solid rgb(var(--c-primary));
+  outline-offset: 2px;
 }
 
 html,
@@ -44,52 +128,160 @@ body,
 
 body {
   margin: 0;
+  /* Off-axis light source: the glow is pushed left-of-centre and a colder
+     accent wash sits top-right. Deliberately not a symmetric halo. */
   background:
-    radial-gradient(1100px 620px at 50% -12%, rgb(var(--c-primary) / 0.09), transparent 60%),
-    radial-gradient(900px 520px at 92% 0%, rgb(var(--c-accent) / 0.08), transparent 55%),
+    radial-gradient(940px 560px at 28% -14%, rgb(var(--c-primary) / 0.1), transparent 62%),
+    radial-gradient(760px 520px at 96% 4%, rgb(var(--c-accent) / 0.07), transparent 58%),
     rgb(var(--c-bg));
+  background-attachment: fixed;
   color: rgb(var(--c-text));
-  font-family: theme("fontFamily.sans");
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;
 }
 
 @layer components {
-  /* Hairline border that reads crisply on the dark surface. */
+  /* ---------------- Surfaces ---------------------------------------- */
+
+  /* Hairline that reads crisply on the dark substrate. */
   .hairline {
     @apply border border-border/70;
   }
 
+  /* Level 1. The default resting card. The inner top highlight is what
+     makes it read as a physical panel rather than a filled rectangle. */
   .card {
-    @apply rounded-2xl bg-surface/90 hairline shadow-card;
+    @apply rounded-panel bg-surface/90 hairline;
+    box-shadow: var(--shadow-raised);
+    /* Light rakes in from the top-left, matching the body wash. */
+    background-image: linear-gradient(148deg, rgb(255 255 255 / 0.04), transparent 44%);
+  }
+
+  /* Level 2. Applied on hover/active by AnimatedCard, or statically for
+     sheets and floating chrome. */
+  .card-lifted {
+    box-shadow: var(--shadow-lifted);
   }
 
   .glass {
     @apply bg-surface/70 backdrop-blur-xl hairline;
   }
 
-  /* Tabular figures for stats/scores so digits don't jitter. */
+  /* ---------------- Type ------------------------------------------- */
+
+  /* Tabular figures so telemetry digits never jitter mid-count. */
   .tnum {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
+    font-family: var(--font-display);
+  }
+
+  /* Big readouts: Manrope, tightened, tabular. The instrument voice. */
+  .metric {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+
+  .display {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
   }
 
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(
-      100deg,
+      104deg,
       rgb(var(--c-text)),
-      rgb(var(--c-primary))
+      rgb(var(--c-primary)) 92%
     );
   }
 
-  /* Faint engineering grid used behind maps / hero surfaces. */
+  /* Small all-caps label. Wide tracking is what sells the HUD register. */
+  .eyebrow {
+    @apply text-[10px] font-bold uppercase leading-none tracking-[0.18em] text-muted;
+  }
+
+  /* ---------------- Textures --------------------------------------- */
+
+  /* Engineering grid behind maps and hero surfaces. */
   .bg-grid {
     background-image:
-      linear-gradient(rgb(var(--c-border) / 0.5) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(var(--c-border) / 0.5) 1px, transparent 1px);
+      linear-gradient(rgb(var(--c-border) / 0.45) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--c-border) / 0.45) 1px, transparent 1px);
     background-size: 26px 26px;
+  }
+
+  /* Finer grid, for surfaces that need texture without a visible lattice. */
+  .bg-grid-fine {
+    background-image:
+      linear-gradient(rgb(var(--c-border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--c-border) / 0.3) 1px, transparent 1px);
+    background-size: 11px 11px;
+  }
+
+  /* Horizontal scanline wash — the single most "instrument" texture here.
+     Pair with a low opacity on decorative overlays only. */
+  .bg-scan {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgb(var(--c-primary) / 0.05) 0px,
+      rgb(var(--c-primary) / 0.05) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  }
+
+  /* SVG fractal-noise grain. Kills banding on the big radial washes and
+     stops large flat areas looking synthetic. Decorative → aria-hidden. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.028;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------------- Loading ---------------------------------------- */
+
+  /* Designed skeleton. A sheen sweeps across a tinted block — never a
+     spinner. Uses transform only, so it stays on the compositor. */
+  .skeleton {
+    @apply relative overflow-hidden rounded-control;
+    background-color: rgb(var(--c-elevated) / 0.6);
+  }
+
+  /* The sweep lives on the pseudo-element, so an inline `animationDelay`
+     on the wrapper can never reach it. The wrapper sets `--skeleton-delay`
+     instead and the delay is consumed here. */
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--c-primary) / 0.09) 45%,
+      rgb(255 255 255 / 0.06) 55%,
+      transparent
+    );
+    animation: skeleton-sweep 1.5s var(--ease-hover) infinite;
+    /* MUST stay after the `animation` shorthand — the shorthand resets
+       animation-delay to 0, so declaring it earlier is silently discarded. */
+    animation-delay: var(--skeleton-delay, 0ms);
+  }
+
+  @keyframes skeleton-sweep {
+    to {
+      transform: translateX(100%);
+    }
   }
 }
 
@@ -101,9 +293,53 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ---------------- Touch targets ----------------------------------
+     Opt-in, NOT a blanket rule. A global `button,a{min-height:44px}`
+     breaks inline text links and compact badges, so hit area is applied
+     deliberately:
+       .tap-target   — the element itself is >=44x44 (icon buttons)
+       .tap-expand   — visually small control, hit area grown via a
+                       transparent ::after overlay. Layout is untouched,
+                       so it is safe on inline and tightly-packed items.
+     ---------------------------------------------------------------- */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .tap-expand {
+    position: relative;
+  }
+
+  .tap-expand::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: max(100%, 44px);
+    width: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
+  /* Hint the compositor for a transform/opacity animation, then release.
+     Apply on hover/active states only — never permanently. */
+  .will-lift {
+    will-change: transform;
+  }
+
+  /* Paint-order isolation for stacked decorative layers. */
+  .layer-isolate {
+    isolation: isolate;
+  }
 }
 
-/* Respect reduced-motion preferences. */
+/* =====================================================================
+   REDUCED MOTION
+   Collapse durations rather than removing transitions outright, so state
+   changes still land instantly instead of appearing broken. JS-driven
+   animation checks the same query via useAnimationConfig().
+   ===================================================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -111,5 +347,14 @@ body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Desktop: the page behind the phone goes darker than the app itself so
+   the handset reads as a lit object on an unlit surface. */
+@media (min-width: 640px) {
+  body {
+    background-color: rgb(2 4 7);
   }
 }

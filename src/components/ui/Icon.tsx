@@ -97,17 +97,33 @@ const REGISTRY: Record<string, ComponentType<LucideProps>> = {
   Zap,
 };
 
+/**
+ * Icons are decorative by default: they sit next to a text label or inside a
+ * control that already has an `aria-label`, so announcing them again is noise.
+ * Pass `label` for the rare standalone icon that carries meaning on its own.
+ */
 export function Icon({
   name,
   className,
   strokeWidth = 2,
+  label,
 }: {
   name: string;
   className?: string;
   strokeWidth?: number;
+  label?: string;
 }) {
   const Cmp = REGISTRY[name] ?? CircleDot;
-  return <Cmp className={className} strokeWidth={strokeWidth} />;
+  return (
+    <Cmp
+      className={className}
+      strokeWidth={strokeWidth}
+      focusable="false"
+      {...(label
+        ? { role: "img", "aria-label": label }
+        : { "aria-hidden": true })}
+    />
+  );
 }
 
 /** Icon name for each hazard type (used on markers and detail cards). */

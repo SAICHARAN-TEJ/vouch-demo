@@ -1,6 +1,10 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
+/**
+ * Tone is a tinted wash + a rim of the same hue, never a solid fill. Badges sit
+ * on cards, and a solid chip would out-shout the numbers next to it.
+ */
 export type BadgeTone =
   | "neutral"
   | "primary"
@@ -10,12 +14,12 @@ export type BadgeTone =
   | "info";
 
 const TONES: Record<BadgeTone, string> = {
-  neutral: "bg-white/5 text-muted ring-1 ring-inset ring-border",
-  primary: "bg-primary/15 text-primary ring-1 ring-inset ring-primary/30",
-  justified: "bg-justified/15 text-justified ring-1 ring-inset ring-justified/30",
-  caution: "bg-caution/15 text-caution ring-1 ring-inset ring-caution/30",
-  danger: "bg-danger/15 text-danger ring-1 ring-inset ring-danger/30",
-  info: "bg-info/15 text-info ring-1 ring-inset ring-info/30",
+  neutral: "bg-content/[0.06] text-muted ring-border",
+  primary: "bg-primary/[0.13] text-primary ring-primary/30",
+  justified: "bg-justified/[0.13] text-justified ring-justified/30",
+  caution: "bg-caution/[0.13] text-caution ring-caution/30",
+  danger: "bg-danger/[0.13] text-danger ring-danger/30",
+  info: "bg-info/[0.13] text-info ring-info/30",
 };
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
@@ -26,7 +30,10 @@ export function Badge({ tone = "neutral", className, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
+        "inline-flex min-h-7 items-center gap-1.5 rounded-full px-2.5 py-1",
+        // Slight positive tracking: at 12px, tight letterforms in a pill read
+        // as a smudge. This keeps short status words crisp.
+        "text-xs font-semibold tracking-[0.01em] ring-1 ring-inset",
         TONES[tone],
         className,
       )}

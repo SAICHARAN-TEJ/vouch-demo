@@ -35,3 +35,6 @@ pnpm-debug.log*
 coverage/
 test-results/
 playwright-report/
+
+# Deepwork session state
+.slim/deepwork/
