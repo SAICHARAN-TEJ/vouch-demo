@@ -1,8 +1,9 @@
 import { useLocation, useOutlet } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { PhoneFrame } from "./PhoneFrame";
 import { BottomNav } from "./BottomNav";
 import { PageTransition, resetScrollReveals } from "@/components/motion";
+import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
 import { useRider } from "@/hooks/queries";
 import { useScoreStore } from "@/store/scoreStore";
 
@@ -14,6 +15,31 @@ import { useScoreStore } from "@/store/scoreStore";
  * auto-height parent to resolve against — collapsing the screen to nothing.
  */
 const NO_NAV = new Set(["/", "/ride"]);
+
+/**
+ * Route-level loading state for the lazily imported screens (App.tsx §8
+ * code-splitting). §7 asks for designed loading states, never default
+ * spinners, so this is composed from the same Skeleton primitives the
+ * screens themselves use — a lazily resolving route reads as the app's own
+ * loading language, not a blank flash.
+ *
+ * A11y: the raw skeletons are aria-hidden decoration; the single
+ * `SkeletonCard` carries the one polite live region, so "Loading" is
+ * announced exactly once (no stacked-live-region announce).
+ *
+ * Sizing: full-bleed routes (splash, ride) resolve their `h-full` against
+ * `<main>`, so the fallback must size the same way or the frame collapses
+ * while a full-bleed chunk loads.
+ */
+function RouteFallback() {
+  return (
+    <div className="flex h-full flex-col gap-4 p-5">
+      <Skeleton height="h-6" width="w-1/3" shape="panel" />
+      <Skeleton height="h-4" width="w-2/3" shape="cell" delay={90} />
+      <SkeletonCard className="mt-8" />
+    </div>
+  );
+}
 
 export function AppShell() {
   const { pathname } = useLocation();
@@ -40,7 +66,9 @@ export function AppShell() {
   return (
     <PhoneFrame>
       <main ref={mainRef} className="no-scrollbar relative flex-1 overflow-y-auto">
-        {fullBleed ? outlet : <PageTransition>{outlet}</PageTransition>}
+        <Suspense fallback={<RouteFallback />}>
+          {fullBleed ? outlet : <PageTransition>{outlet}</PageTransition>}
+        </Suspense>
       </main>
       {showNav && <BottomNav />}
     </PhoneFrame>

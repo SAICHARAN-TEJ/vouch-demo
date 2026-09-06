@@ -62,6 +62,10 @@ test("demo controls ignore a second scenario while processing", async ({ page })
 
   await page.goto("/demo");
   const hero = page.getByRole("button", { name: /Pothole \+ Vehicle/i });
+  // DemoControls is lazily code-split (App.tsx). Locators auto-retry, but the
+  // direct DOM query in the evaluate below does not — wait for the chunk to
+  // load and the button to mount first.
+  await expect(hero).toBeVisible();
   // Dispatch both clicks in one browser task. The controller lock is set before
   // its first await, so only one rider event should be persisted.
   await page.evaluate(() => {
