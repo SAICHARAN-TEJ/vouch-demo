@@ -49,15 +49,17 @@ export function LiveRide() {
       : undefined;
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden bg-bg">
       <SchematicMap
         roadEvents={roadEvents}
         rider={position}
         highlightId={highlightId}
         className="absolute inset-0"
       />
-      {/* Subtle vignette so overlays and HUD stay legible */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/40 via-transparent to-bg/60" />
+      {/* Subtle instrument wash keeps the map legible without flattening it. */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/55 via-transparent to-bg/70" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/[0.06] to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-bg/35 to-transparent" />
 
       <RideHud onExit={() => void exit()} />
       {tripError && (

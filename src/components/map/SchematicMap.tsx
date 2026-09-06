@@ -124,10 +124,25 @@ export function SchematicMap({
             role={onSelect ? "button" : undefined}
             tabIndex={onSelect ? 0 : undefined}
             aria-label={onSelect ? `${ROAD_EVENT_LABEL[ev.type]} details` : undefined}
-            className={cn(onSelect && "cursor-pointer")}
+            className={cn(
+              onSelect &&
+                "group cursor-pointer focus-visible:outline-none",
+            )}
           >
+            {onSelect && (
+              <circle
+                r="22"
+                fill="transparent"
+                pointerEvents="all"
+                className="stroke-transparent stroke-0 transition-colors duration-fast group-focus-visible:stroke-primary group-focus-visible:stroke-[3px]"
+              />
+            )}
             {highlighted && (
-              <circle r={r} className="fill-primary/40 animate-pulse-ring" style={{ transformOrigin: "center" }} />
+              <circle
+                r={r}
+                className="fill-primary/40 animate-pulse-ring motion-reduce:animate-none"
+                style={{ transformOrigin: "center" }}
+              />
             )}
             <circle r={r} className={cn(FILL[ev.type], "opacity-90")} />
             <circle r={r} fill="none" stroke="rgb(255 255 255 / 0.6)" strokeWidth="1.5" />

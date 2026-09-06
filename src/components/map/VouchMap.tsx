@@ -11,7 +11,15 @@ const DEFAULT_STYLE =
   import.meta.env.VITE_MAP_STYLE_URL || "https://demotiles.maplibre.org/style.json";
 
 // Literal class strings (statically present so Tailwind includes them).
-function markerClass(type: RoadEventType, highlight: boolean): string {
+function markerClass(): string {
+  return cn(
+    "tap-target group grid place-items-center rounded-full border-0 bg-transparent p-0 cursor-pointer transition-transform duration-micro ease-hover",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+    "hover:scale-125",
+  );
+}
+
+function markerVisualClass(type: RoadEventType, highlight: boolean): string {
   const color: Record<RoadEventType, string> = {
     pothole: "bg-hazard-pothole",
     speed_breaker: "bg-hazard-speedbreaker",
@@ -19,7 +27,7 @@ function markerClass(type: RoadEventType, highlight: boolean): string {
     debris: "bg-hazard-debris",
   };
   return cn(
-    "block rounded-full ring-2 ring-white/80 shadow-lg cursor-pointer transition hover:scale-125",
+    "block rounded-full ring-2 ring-white/80 shadow-lg transition-transform",
     color[type],
     highlight ? "h-5 w-5 ring-primary animate-pulse" : "h-3.5 w-3.5",
   );
@@ -108,9 +116,13 @@ export function VouchMap({
 
     for (const ev of roadEvents) {
       const el = document.createElement("button");
-      el.className = markerClass(ev.type, ev.id === highlightId);
+      el.className = markerClass();
       el.type = "button";
       el.setAttribute("aria-label", `${ROAD_EVENT_LABEL[ev.type]} details`);
+      const visual = document.createElement("span");
+      visual.className = markerVisualClass(ev.type, ev.id === highlightId);
+      visual.setAttribute("aria-hidden", "true");
+      el.appendChild(visual);
       el.onclick = () => onSelect?.(ev.id);
       markersRef.current.push(
         new maplibregl.Marker({ element: el })
@@ -155,7 +167,7 @@ export function VouchMap({
       <div
         ref={ref}
         className={cn(
-          "absolute inset-0 transition-opacity duration-300",
+          "absolute inset-0 transition-opacity duration-fast",
           ready ? "opacity-100" : "opacity-0",
         )}
         aria-hidden={!ready}
