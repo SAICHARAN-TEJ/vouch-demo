@@ -1,6 +1,76 @@
 import { NavLink } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
-interface NavItem { to: string; label: string; icon: string; center?: boolean; }
-const ITEMS: NavItem[] = [{ to: "/home", label: "Home", icon: "Home" }, { to: "/map", label: "Map", icon: "Map" }, { to: "/ride", label: "Ride", icon: "Radar", center: true }, { to: "/score", label: "Score", icon: "Gauge" }, { to: "/history", label: "History", icon: "Clock" }];
-export function BottomNav() { return <nav className="relative z-20 flex items-stretch justify-around border-t border-border/60 bg-surface/85 px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl">{ITEMS.map((it) => it.center ? <NavLink key={it.to} to={it.to} className="relative flex flex-1 flex-col items-center">{({ isActive }) => <><span className={cn("-mt-6 grid h-14 w-14 place-items-center rounded-full border-4 border-bg bg-primary text-primary-fg shadow-glow transition", isActive && "scale-105 brightness-110")}><Icon name={it.icon} className="h-6 w-6" /></span><span className="mt-0.5 text-[10px] font-semibold text-primary">{it.label}</span></>} </NavLink> : <NavLink key={it.to} to={it.to} className="flex flex-1 flex-col items-center gap-0.5 py-1.5">{({ isActive }) => <><Icon name={it.icon} className={cn("h-5 w-5 transition", isActive ? "text-primary" : "text-muted")} /><span className={cn("text-[10px] font-medium transition", isActive ? "text-primary" : "text-muted")}>{it.label}</span></>}</NavLink>)}</nav>; }
+
+interface NavItem {
+  to: string;
+  label: string;
+  icon: string;
+  center?: boolean;
+}
+
+const ITEMS: NavItem[] = [
+  { to: "/home", label: "Home", icon: "Home" },
+  { to: "/map", label: "Map", icon: "Map" },
+  { to: "/ride", label: "Ride", icon: "Radar", center: true },
+  { to: "/score", label: "Score", icon: "Gauge" },
+  { to: "/history", label: "History", icon: "Clock" },
+];
+
+export function BottomNav() {
+  return (
+    <nav className="relative z-20 flex items-stretch justify-around border-t border-border/60 bg-surface/85 px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl">
+      {ITEMS.map((it) =>
+        it.center ? (
+          <NavLink
+            key={it.to}
+            to={it.to}
+            className="relative flex flex-1 flex-col items-center"
+          >
+            {({ isActive }) => (
+              <>
+                <span
+                  className={cn(
+                    "-mt-6 grid h-14 w-14 place-items-center rounded-full border-4 border-bg bg-primary text-primary-fg shadow-glow transition",
+                    isActive && "scale-105 brightness-110",
+                  )}
+                >
+                  <Icon name={it.icon} className="h-6 w-6" />
+                </span>
+                <span className="mt-0.5 text-[10px] font-semibold text-primary">
+                  {it.label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ) : (
+          <NavLink
+            key={it.to}
+            to={it.to}
+            className="flex flex-1 flex-col items-center gap-0.5 py-1.5"
+          >
+            {({ isActive }) => (
+              <>
+                <Icon
+                  name={it.icon}
+                  className={cn(
+                    "h-5 w-5 transition",
+                    isActive ? "text-primary" : "text-muted",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-[10px] font-medium transition",
+                    isActive ? "text-primary" : "text-muted",
+                  )}
+                >
+                  {it.label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ),
+      )}
+    </nav>
+  );
+}

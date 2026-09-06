@@ -1,5 +1,52 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
+
 type Tone = "primary" | "justified" | "caution" | "danger" | "info";
-const FILL: Record<Tone, string> = { primary: "bg-primary", justified: "bg-justified", caution: "bg-caution", danger: "bg-danger", info: "bg-info" };
-export function ConfidenceBar({ value, tone = "primary", label = "Confidence", showValue = true, className }: { value: number; tone?: Tone; label?: string; showValue?: boolean; className?: string }) { const pct = Math.round(Math.max(0, Math.min(1, value)) * 100); const [w, setW] = useState(0); useEffect(() => { const id = requestAnimationFrame(() => setW(pct)); return () => cancelAnimationFrame(id); }, [pct]); return <div className={cn("w-full", className)}>{(label || showValue) && <div className="mb-1.5 flex items-center justify-between text-xs">{label && <span className="text-muted">{label}</span>}{showValue && <span className="tnum font-semibold text-content">{pct}%</span>}</div>}<div className="h-2 w-full overflow-hidden rounded-full bg-white/8"><div className={cn("h-full rounded-full transition-[width] duration-700 ease-out", FILL[tone])} style={{ width: `${w}%` }} /></div></div>; }
+
+const FILL: Record<Tone, string> = {
+  primary: "bg-primary",
+  justified: "bg-justified",
+  caution: "bg-caution",
+  danger: "bg-danger",
+  info: "bg-info",
+};
+
+/** Horizontal 0..1 confidence meter with an animated fill and a % readout. */
+export function ConfidenceBar({
+  value,
+  tone = "primary",
+  label = "Confidence",
+  showValue = true,
+  className,
+}: {
+  value: number; // 0..1
+  tone?: Tone;
+  label?: string;
+  showValue?: boolean;
+  className?: string;
+}) {
+  const pct = Math.round(Math.max(0, Math.min(1, value)) * 100);
+  const [w, setW] = useState(0);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setW(pct));
+    return () => cancelAnimationFrame(id);
+  }, [pct]);
+
+  return (
+    <div className={cn("w-full", className)}>
+      {(label || showValue) && (
+        <div className="mb-1.5 flex items-center justify-between text-xs">
+          {label && <span className="text-muted">{label}</span>}
+          {showValue && <span className="tnum font-semibold text-content">{pct}%</span>}
+        </div>
+      )}
+      <div className="h-2 w-full overflow-hidden rounded-full bg-white/8">
+        <div
+          className={cn("h-full rounded-full transition-[width] duration-700 ease-out", FILL[tone])}
+          style={{ width: `${w}%` }}
+        />
+      </div>
+    </div>
+  );
+}
