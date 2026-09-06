@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { SchematicMap } from "@/components/map/SchematicMap";
+import { ScrollReveal } from "@/components/motion";
 import { RoadEventCard } from "@/components/road/RoadEventCard";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -36,42 +37,111 @@ export function RoadEventScreen() {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col overflow-hidden">
       <ScreenHeader title={ROAD_EVENT_LABEL[event.type]} subtitle="Shared road intelligence" back />
 
-      <div className="flex flex-col gap-4 p-4 pb-8">
-        <div className="relative h-[220px] overflow-hidden rounded-2xl hairline">
-          <SchematicMap
-            roadEvents={[event]}
-            highlightId={event.id}
-            showRoute={false}
-            className="absolute inset-0"
-          />
-        </div>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-header h-52 bg-grid-fine opacity-20 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
 
-        <RoadEventCard event={event} highlight />
+      <div className="relative flex flex-col gap-5 p-4 pb-8">
+        <ScrollReveal revealId={`road-event-field-${event.id}`} distance={8}>
+          <section
+            aria-label="Hazard location"
+            className="relative h-[clamp(220px,34vh,280px)] overflow-hidden rounded-control border border-border/80 bg-bg shadow-raised"
+          >
+            <SchematicMap
+              roadEvents={[event]}
+              highlightId={event.id}
+              showRoute={false}
+              className="absolute inset-0"
+            />
 
-        <Card padded={false} className="divide-y divide-border/60">
-          <DetailRow icon="Clock" label="First detected" value={event.firstDetected} />
-          <DetailRow icon="Clock" label="Last confirmed" value={event.lastConfirmed} />
-          <DetailRow icon="Users" label="Distinct riders" value={String(event.riders)} />
-          <DetailRow icon="Activity" label="Total reports" value={String(event.reports)} />
-          <DetailRow
-            icon="MapPin"
-            label="Location"
-            value={`${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`}
-          />
-        </Card>
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-scan opacity-25" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/60 via-transparent to-bg/85" />
 
-        <div className="rounded-xl bg-primary/[0.06] p-3.5 ring-1 ring-inset ring-primary/20">
-          <div className="flex gap-2.5">
-            <Icon name="Sparkles" className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <p className="text-xs leading-relaxed text-muted">
-              This hazard's confidence grows as more riders independently confirm it —
-              turning individual manoeuvres into shared road intelligence.
-            </p>
+            <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-3">
+              <div className="rounded-control border border-border/70 bg-bg/80 px-2.5 py-2 shadow-seated backdrop-blur-md">
+                <p className="eyebrow text-primary">Event field</p>
+                <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-content">
+                  <Icon name="Radar" className="h-3.5 w-3.5 text-primary" />
+                  Shared hazard signal
+                </p>
+              </div>
+              <div className="rounded-control border border-border/70 bg-bg/80 px-2.5 py-2 text-right shadow-seated backdrop-blur-md">
+                <p className="eyebrow">Confidence</p>
+                <p className="tnum mt-0.5 font-display text-xl font-bold leading-none text-primary">
+                  {Math.round(event.confidence * 100)}%
+                </p>
+              </div>
+            </div>
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-border/60 bg-bg/80 px-3 py-2.5 backdrop-blur-md">
+              <div className="flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+                <span>Location lock</span>
+                <span className="tnum text-content">{event.latitude.toFixed(4)}, {event.longitude.toFixed(4)}</span>
+              </div>
+            </div>
+
+            <span aria-hidden="true" className="pointer-events-none absolute left-2 top-2 h-3 w-3 border-l border-t border-primary/70" />
+            <span aria-hidden="true" className="pointer-events-none absolute right-2 top-2 h-3 w-3 border-r border-t border-primary/70" />
+            <span aria-hidden="true" className="pointer-events-none absolute bottom-2 left-2 h-3 w-3 border-b border-l border-primary/70" />
+            <span aria-hidden="true" className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-primary/70" />
+          </section>
+        </ScrollReveal>
+
+        <ScrollReveal revealId={`road-event-summary-${event.id}`} delay={70} distance={8}>
+          <RoadEventCard event={event} highlight />
+        </ScrollReveal>
+
+        <section aria-labelledby="event-evidence-heading">
+          <ScrollReveal revealId={`road-event-evidence-heading-${event.id}`} delay={110} distance={8}>
+            <div className="mb-2 flex items-end justify-between gap-3 border-b border-border/60 pb-3">
+              <div>
+                <p className="eyebrow text-primary">Signal archive</p>
+                <h2 id="event-evidence-heading" className="mt-1 font-display text-lg font-bold text-content">
+                  Event evidence
+                </h2>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-muted">
+                <Icon name="Activity" className="h-3.5 w-3.5" />
+                Live aggregate
+              </span>
+            </div>
+          </ScrollReveal>
+
+          <Card padded={false} className="mt-3 overflow-hidden divide-y divide-border/60">
+            <ScrollReveal revealId={`road-event-first-detected-${event.id}`} delay={140} distance={8}>
+              <DetailRow icon="Clock" label="First detected" value={event.firstDetected} />
+            </ScrollReveal>
+            <ScrollReveal revealId={`road-event-last-confirmed-${event.id}`} delay={175} distance={8}>
+              <DetailRow icon="Clock" label="Last confirmed" value={event.lastConfirmed} />
+            </ScrollReveal>
+            <ScrollReveal revealId={`road-event-riders-${event.id}`} delay={210} distance={8}>
+              <DetailRow icon="Users" label="Distinct riders" value={String(event.riders)} />
+            </ScrollReveal>
+            <ScrollReveal revealId={`road-event-reports-${event.id}`} delay={245} distance={8}>
+              <DetailRow icon="Activity" label="Total reports" value={String(event.reports)} />
+            </ScrollReveal>
+            <ScrollReveal revealId={`road-event-location-${event.id}`} delay={280} distance={8}>
+              <DetailRow
+                icon="MapPin"
+                label="Location"
+                value={`${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`}
+              />
+            </ScrollReveal>
+          </Card>
+        </section>
+
+        <ScrollReveal revealId={`road-event-note-${event.id}`} delay={315} distance={8}>
+          <div className="rounded-xl bg-primary/[0.06] p-3.5 ring-1 ring-inset ring-primary/20">
+            <div className="flex gap-2.5">
+              <Icon name="Sparkles" className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <p className="text-xs leading-relaxed text-muted">
+                This hazard's confidence grows as more riders independently confirm it —
+                turning individual manoeuvres into shared road intelligence.
+              </p>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );
@@ -87,7 +157,7 @@ function DetailRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3">
+    <div className="flex min-h-[53px] items-center justify-between gap-4 px-4 py-3.5">
       <span className="inline-flex items-center gap-2 text-sm text-muted">
         <Icon name={icon} className="h-4 w-4" />
         {label}

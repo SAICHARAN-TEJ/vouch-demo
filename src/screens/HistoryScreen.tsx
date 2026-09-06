@@ -7,6 +7,8 @@ import { ConfidenceBar } from "@/components/ui/ConfidenceBar";
 import { ExplanationCard } from "@/components/analysis/ExplanationCard";
 import { ContextTags } from "@/components/analysis/ContextTags";
 import { SignalRow } from "@/components/analysis/SignalRow";
+import { StaggerContainer, StaggerItem } from "@/components/motion";
+import { SkeletonCard } from "@/components/ui/Skeleton";
 import { useHistory } from "@/hooks/queries";
 import { displayTimeForRiderEvent } from "@/config/demoData";
 import { MANOEUVRE_LABEL, VERDICT_LABEL } from "@/config/labels";
@@ -26,30 +28,57 @@ export function HistoryScreen() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col overflow-hidden">
       <ScreenHeader title="Ride History" subtitle="Today's analysed manoeuvres" />
 
-      <div className="flex flex-col gap-2.5 p-4 pb-8">
-        {isLoading && <p className="text-sm text-muted">Loading history…</p>}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-header h-64 bg-grid-fine opacity-20 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+
+      <div className="relative flex flex-col gap-5 p-4 pb-8">
+        <div className="flex items-end justify-between gap-4 border-b border-border/60 pb-3">
+          <div>
+            <p className="eyebrow mb-1.5 text-primary">Archive / Demo day</p>
+            <h2 className="font-display text-lg font-bold text-content">Context records</h2>
+            <p className="mt-1 text-xs text-muted">Motion events with the road story intact.</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="eyebrow">Events logged</p>
+            <p className="tnum mt-1 font-display text-2xl font-extrabold leading-none text-content">
+              {isLoading ? "--" : history.length.toString().padStart(2, "0")}
+            </p>
+          </div>
+        </div>
+
+        {isLoading && (
+          <div role="group" aria-label="Loading history" className="flex flex-col gap-2.5">
+            {[0, 1, 2].map((i) => (
+              <SkeletonCard key={i} meter={false} className="border-border/70" />
+            ))}
+          </div>
+        )}
         {error && (
-          <div role="alert" className="rounded-xl bg-danger/10 p-3 text-xs text-danger ring-1 ring-inset ring-danger/25">
+          <div role="alert" className="rounded-control bg-danger/10 p-3 text-xs text-danger ring-1 ring-inset ring-danger/25">
             Unable to load ride history. Try again after reconnecting.
           </div>
         )}
-        {!isLoading && history.length === 0 && (
-          <div className="mt-16 text-center">
+        {!isLoading && !error && history.length === 0 && (
+          <div className="mt-12 rounded-panel border border-dashed border-border/80 bg-white/[0.02] px-5 py-10 text-center">
             <Icon name="Clock" className="mx-auto h-8 w-8 text-muted" />
             <p className="mt-2 text-sm text-muted">No manoeuvres analysed yet.</p>
           </div>
         )}
-        {history.map((ev) => (
-          <HistoryItem
-            key={ev.id}
-            ev={ev}
-            open={openId === ev.id}
-            onToggle={() => setOpenId((id) => (id === ev.id ? null : ev.id))}
-          />
-        ))}
+        {!isLoading && history.length > 0 && (
+          <StaggerContainer className="flex flex-col gap-2.5" delay={100} stagger="tight">
+            {history.map((ev) => (
+              <StaggerItem key={ev.id}>
+                <HistoryItem
+                  ev={ev}
+                  open={openId === ev.id}
+                  onToggle={() => setOpenId((id) => (id === ev.id ? null : ev.id))}
+                />
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        )}
       </div>
     </div>
   );
@@ -69,14 +98,16 @@ function HistoryItem({
   const rows = signalRows(ev);
 
   return (
-    <Card padded={false} className="overflow-hidden">
+    <Card padded={false} className="overflow-hidden border-border/80 bg-elevated/80 shadow-seated">
       <button
+        type="button"
+        aria-expanded={open}
         onClick={onToggle}
-        className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[0.03]"
+        className="group flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
       >
         <div
           className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5",
+            "grid h-11 w-11 shrink-0 place-items-center rounded-control bg-white/5 ring-1 ring-inset ring-white/[0.06]",
             justified ? "text-justified" : "text-caution",
           )}
         >
@@ -95,12 +126,12 @@ function HistoryItem({
         </div>
         <Icon
           name="ChevronRight"
-          className={cn("h-5 w-5 shrink-0 text-muted transition", open && "rotate-90")}
+          className={cn("h-5 w-5 shrink-0 text-muted transition-transform group-hover:text-content", open && "rotate-90")}
         />
       </button>
 
       {open && (
-        <div className="space-y-3 px-4 pb-4 animate-fade-up">
+        <div className="space-y-3 border-t border-border/60 bg-bg/25 px-4 pb-4 pt-3 animate-fade-up">
           <ConfidenceBar value={r.confidence} tone={justified ? "justified" : "caution"} />
           <ExplanationCard explanation={r.explanation} />
           {r.context.length > 0 && <ContextTags tags={r.context} />}
