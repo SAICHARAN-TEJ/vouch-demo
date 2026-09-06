@@ -1,185 +1,223 @@
 # Vouch
 
-Vouch is a rider-focused road-intelligence demo. It explains why a manoeuvre
-may have happened instead of judging the manoeuvre from motion alone.
-
-The application is designed around a simple product idea:
+Vouch is a rider-focused road-intelligence demo that explains why a manoeuvre
+may have happened instead of judging motion alone.
 
 > **Don't judge the action. Understand the context.**
 
 ## Live Demo
 
-Once GitHub Pages finishes its first deployment, the public demo will be:
+### **https://vouch-demo-beige.vercel.app**
 
-**https://saicharan-tej.github.io/vouch-demo/**
+This is the primary, verified production deployment. It was verified from
+GitHub `main` at application commit
+`81cae8a1ad7266ec4014aa9692e3eb5b88ada03b`.
 
-The repository's Actions deployment is the source of truth for the live URL.
-If the link is temporarily unavailable, open the **Actions** tab and wait for
-the `Build and deploy` workflow to complete.
+## Project Overview
 
-## What Is Included
+Vouch combines simulated ride telemetry, nearby road hazards, and rear-approach
+signals to produce a contextual explanation for a rider's manoeuvre. The
+current release is a deterministic, local-first product demo: it works without
+credentials or a network-backed database, while retaining an optional Supabase
+repository for configured environments.
 
-The current release is **Demo v1**, with a deterministic local-first flow:
+The project is a React and TypeScript single-page application built with Vite.
+It uses Zustand for ride and score state, React Query for repository data,
+MapLibre for the shared hazard map, and pure engine modules for contextual
+analysis, aggregation, and score calculations.
 
-- Splash screen and rider dashboard.
-- Live ride screen with simulated telemetry and a schematic route map.
-- Context Engine that correlates motion, nearby road hazards, and rear approach.
-- Six scripted scenarios, including the hero `Pothole + Vehicle` flow.
-- Animated manoeuvre, analysis, verdict, and shared-road-intelligence overlays.
-- Transparent Vouch Score breakdown with contextual score changes.
+## Key Features
+
+- Splash screen, rider dashboard, live ride, map, score, history, and road-event
+  views.
+- Six deterministic demo scenarios, including the full `Pothole + Vehicle`
+  sequence.
+- Simulated telemetry and camera metadata through replaceable provider seams.
+- Context Engine correlation of motion, road hazards, and rear approach.
+- Animated manoeuvre, analysis, verdict, and shared-intelligence overlays.
+- Transparent Vouch Score breakdown and contextual score changes.
 - Ride history with expandable signal explanations.
-- Shared hazard map with MapLibre and a reliable schematic fallback.
-- Local seeded repository that works without credentials or network access.
-- Optional Supabase repository with rider, trip, event, report, and realtime data.
-- Keyboard-accessible scenario, hazard, map, and overlay interactions.
-- Browser smoke tests covering navigation, the hero flow, duplicate clicks, and
-  narrow-screen layout.
+- Shared hazard map using MapLibre, with a schematic fallback when map tiles are
+  unavailable.
+- Duplicate-report protection in the demo aggregation flow.
+- Keyboard-accessible controls and responsive narrow-screen behavior.
+- Optional Supabase persistence for riders, trips, events, reports, score
+  snapshots, and realtime query invalidation.
 
-## Quick Start
+## Local Setup
 
-Requirements:
+### Requirements
 
-- Node.js 20 or newer.
-- npm.
+- Node.js 20 or newer
+- npm
 
-Install and run locally:
+Install the locked dependency set and start the development server:
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
 Open `http://localhost:5173`.
 
-Useful commands:
+## Available Scripts
 
-```bash
-npm run typecheck   # TypeScript project checks
-npm test            # Vitest unit tests
-npm run test:e2e    # Playwright browser smoke tests
-npm run build       # Production build
-npm run preview     # Serve the production build locally
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server. |
+| `npm run typecheck` | Run TypeScript project checks without emitting files. |
+| `npm test` | Run the Vitest unit test suite once. |
+| `npm run test:watch` | Run Vitest in watch mode. |
+| `npm run build` | Type-check and create the production Vite build in `dist/`. |
+| `npm run test:e2e` | Run the Playwright browser smoke tests. |
+| `npm run preview` | Serve the production build locally for inspection. |
+
+## Optional Environment Configuration
+
+No environment variables are required for the default demo. To configure the
+optional services, copy `.env.example` to `.env.local` and set any needed
+public frontend values:
+
+```text
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_MAP_STYLE_URL=
 ```
 
-The app automatically uses seeded local data when Supabase variables are not
-present. That is the recommended path for a quick product walkthrough.
+- `VITE_SUPABASE_URL` is the Supabase project URL.
+- `VITE_SUPABASE_ANON_KEY` is the public/anonymous browser key. Never expose a
+  Supabase `service_role` key in frontend configuration.
+- `VITE_MAP_STYLE_URL` optionally overrides the MapLibre style. When it is
+  blank, the app uses its built-in OpenStreetMap raster style and can fall back
+  to the schematic map if tiles fail.
 
-## Demo Walkthrough
+The optional demo schema and seed data are in
+`supabase/migrations/001_init.sql`. That schema is intended for demonstration,
+not as a production security or migration strategy.
 
-1. Open the app and choose **Get started**.
-2. Choose **Start Live Ride**, or open **Demo controls** from the sparkle button.
-3. Select **Pothole + Vehicle** for the full hero sequence.
-4. Tap the overlays, or let them advance automatically.
-5. Confirm the contextual verdict, score change, and shared hazard update.
+## Local-First and Fallback Behavior
+
+When valid Supabase settings are absent, Vouch automatically uses its seeded
+local repository. This is the recommended mode for a reliable walkthrough and
+requires no account or backend setup.
+
+When Supabase settings are present, the app performs a health check before
+selecting the Supabase repository. If the project is unavailable or does not
+contain the expected schema, the app falls back to local seeded data rather
+than blocking the demo.
+
+The scripted providers and scenarios keep the main presentation flow
+repeatable. Coordinates, rider records, and ride history used by the demo are
+synthetic.
+
+## Suggested Demo Walkthrough
+
+1. Select **Get started** on the splash screen.
+2. Choose **Start Live Ride**, or open **Demo controls**.
+3. Select **Pothole + Vehicle** for the complete contextual sequence.
+4. Advance the overlays manually or allow them to continue automatically.
+5. Review the contextual verdict, score change, and shared hazard update.
 6. Explore **Map**, **Score**, and **History** from the bottom navigation.
 7. Use **Reset demo** to restore the seeded state.
-
-The hero hazard starts at 7 reports, 6 riders, and 88% confidence. One fresh
-demo report moves it to 8 reports, 7 riders, and 91% confidence. Repeated reports
-from the same demo rider are protected from duplicate aggregation.
 
 ## Architecture
 
 ```text
-React screens
+React screens and route-level flows
   -> Zustand ride and score state
-  -> mock sensor/camera providers
+  -> mock sensor and camera providers
   -> deterministic Context Engine
-  -> road-event aggregation
-  -> repository persistence
+  -> road-event aggregation and score calculation
+  -> local or Supabase repository
   -> React Query refresh and realtime invalidation
 ```
 
-Important boundaries:
+Important project boundaries:
 
 - `src/engine/` contains pure context, aggregation, and score logic.
-- `src/sensors/` and `src/camera/` define provider seams.
-- `src/data/` hides local versus Supabase persistence.
+- `src/sensors/` and `src/camera/` define provider interfaces and mock
+  implementations.
+- `src/data/` selects and implements local or Supabase persistence.
 - `src/store/` owns the live ride state machine and score presentation state.
-- `src/components/ride/` renders the hero sequence as overlays.
-- `supabase/migrations/001_init.sql` defines the demo schema and seed data.
-- `ml/` contains the separate pothole-model training workstream.
+- `src/components/ride/` implements the live sequence and overlays.
+- `src/components/map/` contains the MapLibre and schematic map paths.
+- `src/config/` contains deterministic scenarios, labels, and seeded demo data.
+- `supabase/migrations/001_init.sql` defines the optional demo database.
+- `ml/` documents and contains the separate pothole-model training workstream;
+  it is not production inference inside the web application.
 
-## Optional Supabase Setup
+## Testing and Verification
 
-Copy the example environment file:
+The repository includes Vitest unit coverage for the context, aggregation,
+score, local-repository, and ride-store logic. Playwright smoke tests cover core
+navigation, the hero flow, duplicate interactions, and narrow-screen layout.
+
+Run the complete project checks with:
 
 ```bash
-copy .env.example .env.local
+npm run typecheck
+npm test
+npm run build
+npm run test:e2e
 ```
 
-Set these public frontend variables in `.env.local`:
-
-```text
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_MAP_STYLE_URL=
-```
-
-Run `supabase/migrations/001_init.sql` once in the Supabase SQL editor. The
-schema is intentionally demo-grade and open to the anon key. It is not a
-production security posture.
-
-The app performs a health check before selecting Supabase. If the project is
-unreachable or not migrated, it falls back to local seeded data.
+Use `npm run preview` after a build to inspect the generated static application
+locally. The verified Vercel production deployment linked above corresponds to
+the application source on GitHub `main` at commit
+`81cae8a1ad7266ec4014aa9692e3eb5b88ada03b`.
 
 ## Deployment
 
-Deployment is configured for GitHub Pages in:
+### Vercel
 
-```text
-.github/workflows/deploy.yml
+Vercel is the primary live deployment. The application is built as a static
+Vite SPA, with production output generated in `dist/`. The root `vercel.json`
+keeps client-side routes working when opened directly by rewriting non-file
+requests to `/index.html`:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/((?!.*\\.).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
 ```
 
-Every push to `main` runs the production build, creates the SPA `404.html`
-fallback, uploads the Pages artifact, and deploys it. The Vite base path is
-automatically set to `/vouch-demo/` in GitHub Actions, while local development
-continues to use `/`.
+### GitHub Pages
 
-To deploy manually through GitHub:
+The repository also retains `.github/workflows/deploy.yml` as a secondary
+GitHub Pages path. On pushes to `main` or manual dispatch, it uses Node.js 20,
+runs `npm ci` and `npm run build`, copies `dist/index.html` to `dist/404.html`
+for SPA fallback behavior, and publishes the `dist` artifact through GitHub
+Pages. During GitHub Actions builds, Vite uses `/vouch-demo/` as the base path;
+local development and Vercel use `/`.
 
-1. Push the project to a repository named `vouch-demo` under your account.
-2. Open **Settings -> Pages**.
-3. Select **GitHub Actions** as the source if GitHub asks for a source.
-4. Push to `main` or run the workflow manually.
+## Limitations and Future Work
 
-## Implementation Status
-
-### Complete for Demo v1
-
-- Deterministic contextual analysis.
-- Mock provider event shapes and lifecycle seams.
-- Six scenario definitions and hero overlays.
-- Local fallback data path.
-- Supabase mapping, rider/trip/event/report persistence boundaries.
-- Rider-scoped synthetic-day history.
-- Score and trip snapshot persistence hooks.
-- Reset behavior and duplicate-trigger protection.
-- Responsive phone layout and keyboard interaction coverage.
-
-### Deliberately Future Work
-
-- Native Android accelerometer and gyroscope provider.
-- Native camera provider and on-device permissions.
-- Production YOLO/ONNX inference inside the app.
-- Authentication and user-owned RLS policies.
-- Server-side transactional aggregation/RPC for high-concurrency reports.
-- Production migrations that preserve existing data instead of resetting demo tables.
-- Full component, accessibility, and multi-browser test matrix.
-- Code-splitting MapLibre and further bundle optimization.
-
-The ML training path is documented separately in `ml/README.md`. The mock
-provider remains the reliable presentation path until real perception is ready.
-
-## Privacy And Safety Notes
-
-- The demo stores camera detection metadata, never camera frames.
-- Coordinates and rider records are synthetic Chennai demo data.
+- Sensor and camera inputs are mocked; native Android providers, device
+  permissions, and real telemetry are not implemented.
+- The ML directory is a training workstream only; production YOLO/ONNX
+  inference is not integrated into the web app.
+- The Supabase schema is demo-grade. Production use would require
+  authentication, user-owned access policies, hardened migrations, and
+  server-side transactional aggregation for concurrency.
+- The automated suite is focused on core logic and smoke coverage rather than
+  a complete component, accessibility, and multi-browser matrix.
+- MapLibre can be further code-split and the production bundle further
+  optimized.
 - The Vouch Score is a concept demonstration, not an insurance, legal, credit,
   or official safety score.
-- Do not place a Supabase `service_role` key in frontend environment variables.
+
+## Privacy and Safety
+
+- The demo stores camera detection metadata, not camera frames.
+- Coordinates and rider records are synthetic demonstration data.
+- Do not place privileged backend credentials in frontend environment files.
 
 ## License
 
-No license has been selected yet. Treat this repository as an evaluation/demo
+No license has been selected. Treat the repository as an evaluation/demo
 project unless the owner adds one.
