@@ -10,4 +10,63 @@ import { useHeroSequence } from "@/hooks/useHeroSequence";
 import { useTripPersistence } from "@/hooks/useTripPersistence";
 import { useRideStore } from "@/store/rideStore";
 import { useScoreStore } from "@/store/scoreStore";
-export function LiveRide() { const navigate = useNavigate(); const phase = useRideStore((s) => s.phase); const position = useRideStore((s) => s.position); const analysis = useRideStore((s) => s.analysis); const startRide = useRideStore((s) => s.startRide); const endRide = useRideStore((s) => s.endRide); const score = useScoreStore((s) => s.score); const { data: roadEvents = [] } = useRoadEvents(); useRideSimulation(); useHeroSequence(); const { finish, error: tripError } = useTripPersistence(); useEffect(() => { if (phase === "idle") startRide(score); }, []); const exit = async () => { if (!(await finish())) return; endRide(); navigate("/home"); }; const highlightId = (phase === "verdict" || phase === "roadEvent" || phase === "resumed") && analysis?.roadEvent ? analysis.roadEvent.id : undefined; return <div className="relative h-full w-full overflow-hidden"><SchematicMap roadEvents={roadEvents} rider={position} highlightId={highlightId} className="absolute inset-0" /><div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/40 via-transparent to-bg/60" /><RideHud onExit={() => void exit()} />{tripError && <div role="alert" className="pointer-events-none absolute left-4 right-4 top-28 z-20 rounded-xl bg-danger/10 px-3 py-2 text-xs text-danger ring-1 ring-inset ring-danger/25">{tripError}</div>}<DemoBar /><HeroOverlay /></div>; }
+
+/**
+ * The live ride — the stage for the whole hero flow. The map + HUD run
+ * underneath; hero-flow beats render as overlays driven by `phase`.
+ */
+export function LiveRide() {
+  const navigate = useNavigate();
+  const phase = useRideStore((s) => s.phase);
+  const position = useRideStore((s) => s.position);
+  const analysis = useRideStore((s) => s.analysis);
+  const startRide = useRideStore((s) => s.startRide);
+  const endRide = useRideStore((s) => s.endRide);
+  const score = useScoreStore((s) => s.score);
+  const { data: roadEvents = [] } = useRoadEvents();
+
+  useRideSimulation();
+  useHeroSequence();
+  const { finish, error: tripError } = useTripPersistence();
+
+  // Initialize once on entry. A mount-only effect prevents reset from
+  // immediately restarting the ride while this route remains mounted.
+  useEffect(() => {
+    if (phase === "idle") startRide(score);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const exit = async () => {
+    if (!(await finish())) return;
+    endRide();
+    navigate("/home");
+  };
+
+  // Pulse the affected hazard once the flow reaches the "shared intelligence" beat.
+  const highlightId =
+    (phase === "verdict" || phase === "roadEvent" || phase === "resumed") && analysis?.roadEvent
+      ? analysis.roadEvent.id
+      : undefined;
+
+  return (
+    <div className="relative h-full w-full overflow-hidden">
+      <SchematicMap
+        roadEvents={roadEvents}
+        rider={position}
+        highlightId={highlightId}
+        className="absolute inset-0"
+      />
+      {/* Subtle vignette so overlays and HUD stay legible */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/40 via-transparent to-bg/60" />
+
+      <RideHud onExit={() => void exit()} />
+      {tripError && (
+        <div role="alert" className="pointer-events-none absolute left-4 right-4 top-28 z-20 rounded-xl bg-danger/10 px-3 py-2 text-xs text-danger ring-1 ring-inset ring-danger/25">
+          {tripError}
+        </div>
+      )}
+      <DemoBar />
+      <HeroOverlay />
+    </div>
+  );
+}

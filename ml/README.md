@@ -18,8 +18,8 @@ using the Kaggle **Potholes Detection YOLOv8** dataset.
 ## Why Kaggle (not this machine)
 Your `data.yaml` points at `/kaggle/input/potholes-detection-yolov8/...` — the dataset
 is **mounted on Kaggle**, not present locally. This machine also has no `torch`/`ultralytics`
-installed and Python 3.14 (PyTorch wheels are unreliable there), and CPU training would
-be impractically slow. Kaggle gives you the mounted dataset **and** a free GPU, so run it there.
+installed and Python 3.14 (PyTorch wheels are unreliable there), and CPU training would be
+impractically slow. Kaggle gives you the mounted dataset **and** a free GPU, so run it there.
 
 ## Run on Kaggle (recommended)
 1. Create a new Kaggle Notebook and upload `pothole_yolo_kaggle.ipynb` (File → Import Notebook).
