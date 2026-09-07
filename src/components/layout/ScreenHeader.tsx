@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
+import { Brand } from "@/components/ui/Brand";
 import { cn } from "@/lib/cn";
 
 /**
@@ -79,13 +80,11 @@ export function ScreenHeader({
             <Icon name="ArrowLeft" className="h-5 w-5" />
           </button>
         ) : (
-          <img
-            src="/vouch.svg"
-            width={32}
-            height={32}
-            alt=""
-            className="h-8 w-8 shrink-0 rounded-lg"
-          />
+          // Inline spec §2 mark — no network fetch, so it renders correctly
+          // under any deployment base (GitHub Pages serves under /vouch-demo/).
+          // Brand's rx-28 on a 120 viewBox ≈ 7.5px at 32px — visually
+          // equivalent to the old rounded-lg (8px) chip edge.
+          <Brand size={32} showText={false} className="h-8 w-8 shrink-0" />
         )}
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-baseline gap-2">

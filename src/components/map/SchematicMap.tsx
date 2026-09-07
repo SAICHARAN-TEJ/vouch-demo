@@ -10,9 +10,10 @@ import { cn } from "@/lib/cn";
  * MapLibre can't initialise (PRD §49).
  *
  * Light basemap per spec §4 Road Map: #f0f3ff base, #dee8ff arterial casing
- * with a white core, a soft greenspace blob, route casing #0f5257 under a
- * dashed #003a3e line, hazard dots in their tonal colours with white rims, and
- * a deep-teal rider marker with a white centre.
+ * with a white core, soft greenspace blobs, route casing #0f5257 under a
+ * dashed #003a3e line, and the reference marker grammar: the featured hazard
+ * (explicit highlightId, else highest confidence) gets a label chip + stem +
+ * dot stack; other hazards render as tonal dots with white rims.
  */
 
 const W = 320;
@@ -26,6 +27,14 @@ const FILL: Record<RoadEventType, string> = {
   debris: "fill-hazard-debris",
 };
 
+/** Label-chip inks pairing AA with each tonal fill (mirrors VouchMap). */
+const CHIP_TEXT: Record<RoadEventType, string> = {
+  pothole: "fill-on-secondary-fixed",
+  speed_breaker: "fill-on-primary",
+  waterlogging: "fill-on-primary",
+  debris: "fill-on-primary",
+};
+
 function bounds(points: GeoPoint[]) {
   const lats = points.map((p) => p.latitude);
   const lngs = points.map((p) => p.longitude);
@@ -35,6 +44,18 @@ function bounds(points: GeoPoint[]) {
     minLng: Math.min(...lngs),
     maxLng: Math.max(...lngs),
   };
+}
+
+/** The featured hazard: explicit highlight, else the highest-confidence event. */
+function topHazard(roadEvents: RoadEvent[], highlightId?: string): RoadEvent | undefined {
+  if (highlightId !== undefined) {
+    return roadEvents.find((e) => e.id === highlightId);
+  }
+  if (!roadEvents.length) return undefined;
+  return roadEvents.reduce(
+    (best, ev) => (ev.confidence > best.confidence ? ev : best),
+    roadEvents[0],
+  );
 }
 
 export function SchematicMap({
@@ -54,6 +75,7 @@ export function SchematicMap({
 }) {
   const mapId = useId().replace(/:/g, "");
   const gridId = `${mapId}-grid`;
+  const chipId = `${mapId}-chip`;
   const project = useMemo(() => {
     const all: GeoPoint[] = [
       ...DEMO_ROUTE,
@@ -75,6 +97,9 @@ export function SchematicMap({
       return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
     }).join(" ");
   }, [project]);
+
+  const top = topHazard(roadEvents, highlightId);
+  const rest = top ? roadEvents.filter((e) => e.id !== top.id) : roadEvents;
 
   return (
     <svg
@@ -161,9 +186,9 @@ export function SchematicMap({
         </>
       )}
 
-      {roadEvents.map((ev) => {
+      {/* Secondary hazard dots — tonal fills with white rims. */}
+      {rest.map((ev) => {
         const { x, y } = project(ev);
-        const highlighted = ev.id === highlightId;
         const r = 5 + ev.confidence * 5;
         return (
           <g
@@ -192,24 +217,92 @@ export function SchematicMap({
                 className="stroke-transparent stroke-0 transition-colors duration-fast group-focus-visible:stroke-primary group-focus-visible:stroke-[3px]"
               />
             )}
-            {highlighted && (
-              <circle
-                r={r}
-                className="fill-primary/25 animate-pulse-ring motion-reduce:animate-none"
-                style={{ transformOrigin: "center" }}
-              />
-            )}
             <circle r={r} className={cn(FILL[ev.type], "opacity-95")} />
             <circle r={r} fill="none" stroke="rgb(255 255 255 / 0.9)" strokeWidth="1.5" />
           </g>
         );
       })}
 
+      {/* Featured hazard: label chip + stem + dot stack (reference marker). */}
+      {top && (() => {
+        const { x, y } = project(top);
+        const r = 6.5 + top.confidence * 3.5;
+        const label = ROAD_EVENT_LABEL[top.type];
+        // Measure-free label sizing: ~7px per char + padding, clamped to canvas.
+        const chipW = Math.min(W - 2 * PAD, label.length * 7 + 10);
+        const chipH = 16;
+        const chipX = Math.max(PAD - 12, Math.min(W - PAD + 12 - chipW, x - chipW / 2));
+        const chipY = Math.max(6, y - 46);
+        return (
+          <g
+            data-testid="featured-hazard"
+            transform={`translate(${x} ${y})`}
+            onClick={() => onSelect?.(top.id)}
+            onKeyDown={(event) => {
+              if (onSelect && (event.key === "Enter" || event.key === " ")) {
+                event.preventDefault();
+                onSelect(top.id);
+              }
+            }}
+            role={onSelect ? "button" : undefined}
+            tabIndex={onSelect ? 0 : undefined}
+            aria-label={onSelect ? `${ROAD_EVENT_LABEL[top.type]} details` : undefined}
+            className={cn(onSelect && "group cursor-pointer focus-visible:outline-none")}
+          >
+            {onSelect && (
+              <circle
+                r="26"
+                fill="transparent"
+                pointerEvents="all"
+                className="stroke-transparent stroke-0 transition-colors duration-fast group-focus-visible:stroke-primary group-focus-visible:stroke-[3px]"
+              />
+            )}
+            {/* Highlight pulse — solid ring, scale/opacity only. */}
+            <circle
+              r={r}
+              className="fill-primary/25 animate-pulse-ring motion-reduce:animate-none"
+              style={{ transformOrigin: "center" }}
+            />
+            <circle r={r} className={cn(FILL[top.type], "opacity-95")} />
+            <circle r={r} fill="none" stroke="rgb(255 255 255 / 0.9)" strokeWidth="1.5" />
+            {/* Stem from dot to chip */}
+            <line
+              x1="0"
+              y1={-r}
+              x2={chipX - x}
+              y2={chipY + chipH - y}
+              stroke="rgb(0 0 0 / 0.25)"
+              strokeWidth="1"
+            />
+            {/* Label chip — positions in canvas space (undo translate). */}
+            <g transform={`translate(${chipX - x} ${chipY - y})`}>
+              <rect
+                id={chipId}
+                width={chipW}
+                height={chipH}
+                rx="4"
+                className={FILL[top.type]}
+              />
+              <text
+                x={chipW / 2}
+                y={chipH / 2 + 4}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="600"
+                className={CHIP_TEXT[top.type]}
+              >
+                {label}
+              </text>
+            </g>
+          </g>
+        );
+      })()}
+
       {rider && (
         <g transform={`translate(${project(rider).x} ${project(rider).y})`}>
           <circle r="13" className="fill-primary/20 animate-pulse-ring" style={{ transformOrigin: "center" }} />
           <circle r="6.5" className="fill-primary-container" />
-          <circle r="6.5" fill="none" stroke="white" strokeWidth="2" />
+          <circle r="6.6" fill="none" stroke="white" strokeWidth="2" />
         </g>
       )}
     </svg>

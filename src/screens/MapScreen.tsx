@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { VouchMap } from "@/components/map/VouchMap";
@@ -9,8 +10,16 @@ import { useRoadEvents } from "@/hooks/queries";
 import type { RoadEventType } from "@/types";
 import { ROAD_EVENT_LABEL } from "@/config/labels";
 import { hazardBg } from "@/lib/ui";
+import { cn } from "@/lib/cn";
 
-const LEGEND: RoadEventType[] = ["pothole", "speed_breaker", "waterlogging", "debris"];
+const CATEGORIES: RoadEventType[] = [
+  "pothole",
+  "speed_breaker",
+  "waterlogging",
+  "debris",
+];
+
+type Filter = "all" | RoadEventType;
 
 /**
  * Animation: map-entrance
@@ -20,17 +29,40 @@ const LEGEND: RoadEventType[] = ["pothole", "speed_breaker", "waterlogging", "de
  * Stagger: 140ms tight stagger on the hazard list
  * Reduced motion: global collapse renders the final state instantly.
  *
- * Light system per spec §4 Road Map recipe: light basemap (rendered by
- * SchematicMap/VouchMap), a top chip deck on white surfaces, and a bottom
- * legend strip on the lowest tonal surface. No scan lines, no grid overlays.
+ * Map-dominant layout per spec §4 Road Map recipe: a tall map viewport, a
+ * horizontally scrollable hazard-category filter deck (active = primary fill
+ * with a count chip; inactive = white with tonal dots), a recenter control,
+ * and the reported-hazard list filtered by the same tab. The old bottom
+ * legend strip was removed — the tabs carry the color coding, and keeping
+ * both duplicated every category twice.
  */
 export function MapScreen() {
   const navigate = useNavigate();
   const { data: roadEvents = [], isLoading, error } = useRoadEvents();
+  const [filter, setFilter] = useState<Filter>("all");
+  const [recenterKey, setRecenterKey] = useState(0);
 
-  const sorted = [...roadEvents].sort((a, b) => b.confidence - a.confidence);
+  const counts = useMemo(() => {
+    const c: Record<Filter, number> = {
+      all: roadEvents.length,
+      pothole: 0,
+      speed_breaker: 0,
+      waterlogging: 0,
+      debris: 0,
+    };
+    for (const ev of roadEvents) c[ev.type] += 1;
+    return c;
+  }, [roadEvents]);
+
+  const visible = useMemo(
+    () =>
+      [...roadEvents]
+        .filter((ev) => filter === "all" || ev.type === filter)
+        .sort((a, b) => b.confidence - a.confidence),
+    [roadEvents, filter],
+  );
+
   const open = (id: string) => navigate(`/road/${id}`);
-  const strongestSignal = sorted[0]?.confidence ?? 0;
 
   return (
     <div className="relative flex flex-col overflow-hidden">
@@ -44,9 +76,14 @@ export function MapScreen() {
         <ScrollReveal revealId="map-field" distance={8}>
           <section
             aria-label="Shared hazard map"
-            className="relative h-[clamp(330px,46vh,390px)] overflow-hidden rounded-xl border border-outline-variant/50 bg-surface-container-low shadow-raised"
+            className="relative h-[clamp(420px,60vh,560px)] overflow-hidden rounded-xl border border-outline-variant/50 bg-surface-container-low shadow-raised"
           >
-            <VouchMap roadEvents={roadEvents} onSelect={open} className="absolute inset-0" />
+            <VouchMap
+              roadEvents={visible}
+              recenterKey={recenterKey}
+              onSelect={open}
+              className="absolute inset-0"
+            />
 
             {/* Top chip deck — inert so map interaction stays unobstructed. */}
             <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-3">
@@ -60,31 +97,57 @@ export function MapScreen() {
               <div className="rounded-lg bg-surface-container-lowest px-2.5 py-2 text-right shadow-raised">
                 <p className="eyebrow">Active signals</p>
                 <p className="tnum mt-0.5 font-display text-xl font-bold leading-none text-content">
-                  {roadEvents.length.toString().padStart(2, "0")}
+                  {visible.length.toString().padStart(2, "0")}
                 </p>
               </div>
             </div>
 
-            {/* Bottom legend strip */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-outline-variant/50 bg-surface-container-lowest/95 px-3 pb-3 pt-2.5 backdrop-blur-md">
-              <div className="mb-2 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                <span>Hazard channels</span>
-                <span className="tnum text-primary">Peak {Math.round(strongestSignal * 100)}%</span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                {LEGEND.map((t) => (
-                  <span key={t} className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-medium text-content">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${hazardBg(t)}`} />
-                    <span className="truncate">{ROAD_EVENT_LABEL[t]}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
+            {/* Recenter control — eases the live map back to Chennai centre. */}
+            <button
+              type="button"
+              onClick={() => setRecenterKey((k) => k + 1)}
+              aria-label="Recenter map"
+              className={cn(
+                "tap-target absolute bottom-3 right-3 grid h-12 w-12 place-items-center rounded-lg",
+                "bg-surface-container-lowest text-primary shadow-lifted",
+                "transition-[transform,background-color] duration-micro ease-hover",
+                "hover:bg-surface-container active:scale-95",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+              )}
+            >
+              <Icon name="LocateFixed" className="h-5 w-5" />
+            </button>
           </section>
         </ScrollReveal>
 
+        {/* Hazard category filter deck — filters both map and list. */}
+        <ScrollReveal revealId="map-filter-tabs" delay={60} distance={8}>
+          <div
+            role="tablist"
+            aria-label="Filter hazards by category"
+            className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1"
+          >
+            <FilterTab
+              active={filter === "all"}
+              onClick={() => setFilter("all")}
+              label="All"
+              count={counts.all}
+            />
+            {CATEGORIES.map((t) => (
+              <FilterTab
+                key={t}
+                active={filter === t}
+                onClick={() => setFilter(t)}
+                label={ROAD_EVENT_LABEL[t]}
+                count={counts[t]}
+                dotClass={hazardBg(t)}
+              />
+            ))}
+          </div>
+        </ScrollReveal>
+
         <ScrollReveal revealId="map-hazard-heading" delay={90} distance={8}>
-          <div className="mt-6 flex items-end justify-between gap-3 border-b border-outline-variant/50 pb-3">
+          <div className="mt-5 flex items-end justify-between gap-3 border-b border-outline-variant/50 pb-3">
             <div>
               <p className="eyebrow mb-1.5 text-primary">Signal queue</p>
               <h2 className="font-display text-lg font-bold text-content">Reported hazards</h2>
@@ -104,11 +167,15 @@ export function MapScreen() {
 
         <div className="mt-3">
           {isLoading && <p className="text-sm text-muted">Loading hazards…</p>}
-          {!isLoading && sorted.length === 0 && (
-            <p className="text-sm text-muted">No hazards reported yet.</p>
+          {!isLoading && visible.length === 0 && (
+            <p className="text-sm text-muted">
+              {filter === "all"
+                ? "No hazards reported yet."
+                : `No ${ROAD_EVENT_LABEL[filter].toLowerCase()} hazards reported yet.`}
+            </p>
           )}
           <StaggerContainer className="space-y-2.5" delay={140} stagger="tight">
-            {sorted.map((ev) => (
+            {visible.map((ev) => (
               <StaggerItem key={ev.id}>
                 <RoadEventCard event={ev} onClick={() => open(ev.id)} />
               </StaggerItem>
@@ -117,5 +184,51 @@ export function MapScreen() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * One hazard category tab. Active = primary fill with a count chip (per spec
+ * §4: `bg-primary text-on-primary` + count chip `bg-surface/20`); inactive =
+ * white surface with the category's tonal dot. Height clears the 44px floor.
+ */
+function FilterTab({
+  active,
+  onClick,
+  label,
+  count,
+  dotClass,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+  dotClass?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      className={cn(
+        "tap-target inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold",
+        "transition-[background-color,color] duration-micro ease-hover",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+        active
+          ? "bg-primary text-on-primary"
+          : "bg-surface-container-lowest text-on-surface-variant ring-1 ring-inset ring-outline-variant/60 hover:bg-surface-container",
+      )}
+    >
+      {!active && dotClass && (
+        <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", dotClass)} aria-hidden="true" />
+      )}
+      <span className="whitespace-nowrap">{label}</span>
+      {active && (
+        <span className="ml-0.5 rounded bg-surface/20 px-1.5 py-0.5 text-[10px] font-bold tnum">
+          {count}
+        </span>
+      )}
+    </button>
   );
 }
