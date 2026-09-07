@@ -13,6 +13,8 @@ Once GitHub Pages finishes its first deployment, the public demo will be:
 
 **https://saicharan-tej.github.io/vouch-demo/**
 
+Note : Use a mobile for an accurate depiction.
+
 The repository's Actions deployment is the source of truth for the live URL.
 If the link is temporarily unavailable, open the **Actions** tab and wait for
 the `Build and deploy` workflow to complete.
