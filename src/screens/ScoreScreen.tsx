@@ -13,6 +13,19 @@ function trustLabel(score: number): string {
   return "New rider";
 }
 
+/**
+ * Animation: score-entrance
+ * Trigger: mount + scroll into view per section
+ * Duration: 480ms  Easing: entrance
+ * Properties: transform + opacity only
+ * Stagger: 70–90ms across ledger rows
+ * Reduced motion: global collapse renders the final state instantly.
+ *
+ * Light system per spec §4 Rider Score recipe: white score hero with the ONE
+ * allowed soft decoration (primary-fixed blur disc), tertiary-fixed "Live
+ * Guard" chip, tonal ledger rows on surface-container-low, h-2.5 primary
+ * progress bars.
+ */
 export function ScoreScreen() {
   const factors = useScoreStore((s) => s.factors);
   const score = useScoreStore((s) => s.score);
@@ -22,17 +35,20 @@ export function ScoreScreen() {
       <ScreenHeader title="Vouch Score" subtitle="Contextual riding behaviour" />
 
       <div className="flex flex-col gap-6 p-4 pb-8">
-        {/* Ring */}
+        {/* Score hero — the one soft decor: a primary-fixed blur disc. */}
         <Card glow className="relative isolate flex flex-col items-center overflow-hidden py-7">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-grid-fine opacity-20" />
-          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/[0.08] blur-3xl" />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-fixed/40 blur-2xl"
+          />
           <div className="relative z-10 mb-5 flex w-full items-center justify-between px-1">
             <div>
               <p className="eyebrow">Current signal</p>
               <p className="mt-1 text-xs text-muted">Context-adjusted rider profile</p>
             </div>
-            <span className="tnum rounded-control bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary ring-1 ring-inset ring-primary/20">
-              Live
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-tertiary-fixed px-2.5 py-1 text-label-sm font-semibold text-on-tertiary-fixed">
+              <span className="h-2 w-2 rounded-full bg-tertiary animate-breathe" />
+              Live Guard
             </span>
           </div>
           <div className="relative z-10">
@@ -47,13 +63,13 @@ export function ScoreScreen() {
               </div>
             </ProgressRing>
           </div>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3.5 py-1.5 text-sm font-bold text-primary ring-1 ring-primary/30">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-tertiary-fixed px-3.5 py-1.5 text-sm font-bold text-on-tertiary-fixed">
             <Icon name="ShieldCheck" className="h-4 w-4" />
             {trustLabel(score)}
           </div>
         </Card>
 
-        {/* Breakdown */}
+        {/* Breakdown ledger */}
         <div>
           <div className="mb-2 flex items-end justify-between gap-3">
             <div>
@@ -62,7 +78,7 @@ export function ScoreScreen() {
             </div>
             <span className="text-[11px] text-muted">base + context</span>
           </div>
-          <Card padded={false} className="overflow-hidden divide-y divide-border/60">
+          <Card padded={false} className="overflow-hidden divide-y divide-outline-variant/40">
             <ScrollReveal revealId="score-base" distance={8}>
               <Row label="Base score" value={BASE_SCORE} muted />
             </ScrollReveal>
@@ -71,7 +87,7 @@ export function ScoreScreen() {
                 <Row label={f.label} value={f.delta} delta />
               </ScrollReveal>
             ))}
-            <div className="flex items-center justify-between bg-primary/[0.045] px-4 py-4">
+            <div className="flex items-center justify-between bg-primary/[0.05] px-4 py-4">
               <div>
                 <span className="font-bold text-content">Total</span>
                 <p className="mt-0.5 text-[11px] text-muted">Your current Vouch Score</p>
@@ -84,7 +100,7 @@ export function ScoreScreen() {
         </div>
 
         {/* Disclaimer (PRD §16) */}
-        <div className="rounded-xl bg-white/[0.03] p-3.5 hairline">
+        <div className="rounded-xl bg-surface-container-low p-3.5">
           <div className="flex gap-2.5">
             <Icon name="Info" className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
             <p className="text-xs leading-relaxed text-muted">
@@ -119,8 +135,8 @@ function Row({
         className={cn(
           "tnum text-sm font-bold",
           !delta && "text-content",
-          delta && positive && "text-justified",
-          delta && !positive && "text-danger",
+          delta && positive && "text-tertiary",
+          delta && !positive && "text-error",
         )}
       >
         <AnimatedNumber value={value} duration="fast" prefix={delta ? sign : undefined} />

@@ -16,6 +16,11 @@ import { useAnimationConfig } from "@/hooks/useAnimationConfig";
  *
  * Items are links, never buttons — this is navigation, and screen-reader users
  * should hear "link". Do not convert them.
+ *
+ * Light chrome per spec §3: h-16, surface-container-lowest/95 + backdrop
+ * blur, active = primary-container ink. The raised Ride key stays (our nav
+ * has a centre tab) recoloured to the tonal system — a deep-teal filled key
+ * with the white icon, seated on the bar.
  */
 
 interface NavItem {
@@ -40,17 +45,12 @@ export function BottomNav() {
     <nav
       aria-label="Primary navigation"
       className={cn(
-        "relative z-20 flex min-h-nav items-stretch justify-around",
-        "bg-surface/85 px-2 pt-1.5 backdrop-blur-xl",
-        "pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+        "relative z-20 flex h-16 shrink-0 items-stretch justify-around",
+        "bg-surface-container-lowest/95 px-2 backdrop-blur-xl",
+        "pb-[max(0.25rem,env(safe-area-inset-bottom))]",
       )}
+      style={{ boxShadow: "0 -2px 10px rgb(0 0 0 / 0.04)" }}
     >
-      {/* Top edge: brightest in the middle, under the raised Ride key. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
-      />
-
       {ITEMS.map((it) =>
         it.center ? (
           <NavLink
@@ -65,17 +65,17 @@ export function BottomNav() {
                 <span
                   className={cn(
                     "-mt-6 grid h-14 w-14 place-items-center rounded-full",
-                    "border-4 border-bg bg-gradient-to-b from-primary to-primary/80 text-primary-fg shadow-signal",
-                    "transition-[transform,filter] duration-micro ease-hover",
-                    "group-hover:-translate-y-0.5 group-hover:brightness-[1.06]",
+                    "border-4 border-bg bg-primary-container text-on-primary shadow-lifted",
+                    "transition-[transform] duration-micro ease-hover",
+                    "group-hover:-translate-y-0.5",
                     "group-active:translate-y-0 group-active:scale-95",
-                    "group-focus-visible:ring-2 group-focus-visible:ring-primary group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-surface",
-                    isActive && "scale-105 brightness-110",
+                    "group-focus-visible:ring-2 group-focus-visible:ring-primary group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-bg",
+                    isActive && "scale-105",
                   )}
                 >
                   <Icon name={it.icon} className="h-6 w-6" strokeWidth={2.25} />
                 </span>
-                <span className="mt-0.5 text-[10px] font-semibold tracking-[0.01em] text-primary">
+                <span className="mt-0.5 text-[11px] font-semibold text-primary-container">
                   {it.label}
                 </span>
               </>
@@ -86,7 +86,7 @@ export function BottomNav() {
             key={it.to}
             to={it.to}
             className={cn(
-              "group relative flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-control py-1.5",
+              "group relative flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1.5",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
             )}
           >
@@ -96,7 +96,7 @@ export function BottomNav() {
                   <motion.span
                     layoutId="nav-indicator"
                     aria-hidden="true"
-                    className="absolute -top-px h-0.5 w-7 rounded-full bg-primary shadow-[0_0_12px_1px_rgb(var(--c-primary)/0.6)]"
+                    className="absolute top-1 h-1 w-8 rounded-full bg-primary-container"
                     transition={a.springTransition("indicator")}
                   />
                 )}
@@ -105,17 +105,17 @@ export function BottomNav() {
                   className={cn(
                     "h-5 w-5 transition-[color,transform] duration-micro ease-hover",
                     isActive
-                      ? "-translate-y-px text-primary"
-                      : "text-muted group-hover:text-content",
+                      ? "-translate-y-px text-primary-container"
+                      : "text-on-surface-variant group-hover:text-on-surface",
                   )}
                   strokeWidth={isActive ? 2.4 : 2}
                 />
                 <span
                   className={cn(
-                    "text-[10px] font-medium tracking-[0.01em] transition-colors duration-micro",
+                    "text-[11px] tracking-[0.01em] transition-colors duration-micro",
                     isActive
-                      ? "font-semibold text-primary"
-                      : "text-muted group-hover:text-content",
+                      ? "font-semibold text-primary-container"
+                      : "font-medium text-on-surface-variant group-hover:text-on-surface",
                   )}
                 >
                   {it.label}

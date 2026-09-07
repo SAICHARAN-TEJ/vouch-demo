@@ -3,7 +3,10 @@ import { Icon } from "@/components/ui/Icon";
 
 export type SignalState = "on" | "off" | "checking";
 
-/** One investigative signal row (motion / road context / rear approach). */
+/** One investigative signal row (motion / road context / rear approach).
+ *
+ * Light system per spec §4: row on surface-container-low, icon tile on white.
+ */
 export function SignalRow({
   icon,
   label,
@@ -17,16 +20,16 @@ export function SignalRow({
 }) {
   const tone =
     state === "on"
-      ? "text-justified"
+      ? "text-tertiary"
       : state === "checking"
-        ? "text-info"
+        ? "text-primary"
         : "text-muted";
 
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5 hairline">
+    <div className="flex items-center gap-3 rounded-xl bg-surface-container-low px-3 py-2.5">
       <div
         className={cn(
-          "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/5",
+          "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-container-lowest",
           tone,
         )}
       >
@@ -48,7 +51,7 @@ function SignalIndicator({ state }: { state: SignalState }) {
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="h-1.5 w-1.5 animate-pulse rounded-full bg-info"
+            className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"
             style={{ animationDelay: `${i * 150}ms` }}
           />
         ))}
@@ -57,7 +60,7 @@ function SignalIndicator({ state }: { state: SignalState }) {
   }
   if (state === "on") {
     return (
-      <span className="grid h-6 w-6 place-items-center rounded-full bg-justified/15 text-justified">
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-tertiary-fixed text-tertiary">
         <Icon name="Check" className="h-4 w-4" strokeWidth={3} />
       </span>
     );

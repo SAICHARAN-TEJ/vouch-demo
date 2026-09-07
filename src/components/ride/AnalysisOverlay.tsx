@@ -49,7 +49,7 @@ export function AnalysisOverlay({
   return (
     <OverlayShell onSkip={onAdvance}>
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center">
-        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-info">
+        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
           <Icon name="ScanLine" className="h-4 w-4 animate-pulse" />
           Understanding the context
         </div>

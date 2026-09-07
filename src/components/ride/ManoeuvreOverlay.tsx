@@ -20,16 +20,16 @@ export function ManoeuvreOverlay({
   return (
     <OverlayShell onSkip={onAdvance} className="items-center justify-center text-center">
       <div className="flex flex-col items-center">
-        {/* Pulsing detection ring */}
+        {/* Pulsing detection ring — solid concentric rings, no blur halos */}
         <div className="relative mb-8 grid h-32 w-32 place-items-center">
-          <span className="absolute inset-0 rounded-full bg-caution/20 animate-pulse-ring" />
-          <span className="absolute inset-3 rounded-full bg-caution/25 animate-pulse-ring [animation-delay:200ms]" />
-          <span className="relative grid h-20 w-20 place-items-center rounded-full bg-caution/15 ring-1 ring-caution/40">
-            <Icon name="MoveHorizontal" className="h-9 w-9 text-caution" />
+          <span className="absolute inset-0 rounded-full bg-secondary-fixed/40 animate-pulse-ring" />
+          <span className="absolute inset-3 rounded-full bg-secondary-fixed/60 animate-pulse-ring [animation-delay:200ms]" />
+          <span className="relative grid h-20 w-20 place-items-center rounded-full bg-secondary-fixed text-secondary ring-1 ring-secondary/40">
+            <Icon name="MoveHorizontal" className="h-9 w-9" strokeWidth={2.25} />
           </span>
         </div>
 
-        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-caution/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-caution ring-1 ring-caution/30">
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed/45 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-secondary ring-1 ring-secondary/30">
           <Icon name="Activity" className="h-3.5 w-3.5" />
           Manoeuvre detected
         </div>

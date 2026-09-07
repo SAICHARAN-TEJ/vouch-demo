@@ -14,6 +14,8 @@ import { cn } from "@/lib/cn";
  * fallback). Makes the graceful-degradation story visible during the demo. The
  * status dot only breathes when the connection is real; local is deliberately
  * inert so the two states are distinguishable without reading the label.
+ *
+ * Light system: 4px radius chip (no pill), tonal washes per spec §4.
  */
 export function SourceBadge({ className }: { className?: string }) {
   const { data: source } = useDataSource();
@@ -22,11 +24,11 @@ export function SourceBadge({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
+        "inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1",
         "text-[11px] font-semibold tracking-[0.01em] ring-1 ring-inset",
         live
-          ? "bg-primary/[0.13] text-primary ring-primary/30"
-          : "bg-content/[0.06] text-muted ring-border",
+          ? "bg-primary/10 text-primary ring-primary/25"
+          : "bg-surface-container text-on-surface-variant ring-outline-variant",
         className,
       )}
     >

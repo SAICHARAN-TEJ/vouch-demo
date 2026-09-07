@@ -16,6 +16,9 @@ function barTone(status: RoadEventStatus): "justified" | "info" | "caution" {
 /**
  * Shared card for a road event (hazard). Used on the Map list, the Road Event
  * detail screen and the "shared intelligence" hero beat.
+ *
+ * Light system per spec §4: white card, icon tile on surface-container,
+ * outline-variant hairline. Highlight = primary emphasis ring.
  */
 export function RoadEventCard({
   event,
@@ -44,16 +47,16 @@ export function RoadEventCard({
       aria-label={clickable ? `${ROAD_EVENT_LABEL[event.type]} details` : undefined}
       className={cn(
         "card p-4 transition",
-        clickable && "cursor-pointer hover:bg-white/[0.04]",
+        clickable && "cursor-pointer hover:bg-surface-container-low/40",
         clickable && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
-        highlight && "ring-1 ring-primary/50 shadow-glow",
+        highlight && "ring-1 ring-primary/40",
         className,
       )}
     >
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5",
+            "grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container",
             hazardText(event.type),
           )}
         >

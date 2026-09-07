@@ -14,6 +14,10 @@ import { useScoreStore } from "@/store/scoreStore";
 /**
  * The live ride — the stage for the whole hero flow. The map + HUD run
  * underneath; hero-flow beats render as overlays driven by `phase`.
+ *
+ * Full-bleed NO_NAV screen per AppShell. Light system per spec §4 Active Ride:
+ * the SchematicMap paints the light basemap; soft tonal edge washes keep the
+ * floating chrome legible without darkening the map body.
  */
 export function LiveRide() {
   const navigate = useNavigate();
@@ -49,21 +53,21 @@ export function LiveRide() {
       : undefined;
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-bg">
+    <div className="relative h-full w-full overflow-hidden bg-surface-container-low">
       <SchematicMap
         roadEvents={roadEvents}
         rider={position}
         highlightId={highlightId}
         className="absolute inset-0"
       />
-      {/* Subtle instrument wash keeps the map legible without flattening it. */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/55 via-transparent to-bg/70" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/[0.06] to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-bg/35 to-transparent" />
+      {/* Soft tonal washes at the very edges so the floating HUD/DemoBar
+          chrome stays legible over the light map. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-surface-container-low/85 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-surface-container-low/70 to-transparent" />
 
       <RideHud onExit={() => void exit()} />
       {tripError && (
-        <div role="alert" className="pointer-events-none absolute left-4 right-4 top-28 z-20 rounded-xl bg-danger/10 px-3 py-2 text-xs text-danger ring-1 ring-inset ring-danger/25">
+        <div role="alert" className="pointer-events-none absolute left-4 right-4 top-28 z-20 rounded-xl bg-error-container px-3 py-2 text-xs text-on-error-container">
           {tripError}
         </div>
       )}

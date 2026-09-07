@@ -3,58 +3,90 @@
 @tailwind utilities;
 
 /* =====================================================================
-   VOUCH — "Instrument-grade road intelligence"
+   VOUCH — Stitch light system (spec: .slim/stitch-reference/spec.md)
    ---------------------------------------------------------------------
-   A dark, telemetry-influenced system. Engineered, not decorated.
-   Everything is driven by the RGB-channel variables below so the whole
-   app can be reskinned from this block alone. Tailwind consumes them via
-   `rgb(var(--c-x) / <alpha-value>)` aliases in tailwind.config.js.
+   Light Material-3 tonal palette. Everything is driven by the RGB-channel
+   variables below so the whole app is reskinned from this block alone.
+   Tailwind consumes them via `rgb(var(--c-x) / <alpha-value>)` aliases in
+   tailwind.config.js. Legacy variable names (--c-bg etc.) are kept so
+   src/components/motion/* and src/lib/ui — which are outside edit scope —
+   keep resolving against the light values.
    ===================================================================== */
 :root {
-  /* ---- Substrate: cold, slightly blue-shifted graphite -------------- */
-  --c-bg: 6 10 16; /* #060A10 — deepest, the "off" state */
-  --c-surface: 13 19 28; /* #0D131C — cards sit here */
-  --c-elevated: 22 31 44; /* #161F2C — chips, inputs, hovered rows */
-  --c-border: 40 54 71; /* #283647 — hairlines */
-  /* #96A6B8. CONTRAST BUDGET — read this before lowering an alpha.
-     At full opacity this is ~8:1 on --c-bg. But muted is almost always
-     composited at reduced alpha, and the type scale is anchored low
-     (xs 12.5px, sm 13.5px, StatTile sub 11px), so EVERY muted use is
-     NORMAL text and needs 4.5:1, not the 3:1 large-text allowance.
-     Measured composited ratios:
-       /70  ~4.2:1   FAILS AA — PROHIBITED for text
-       /75  ~5.05:1  below the permitted floor — PROHIBITED for text
-       /80  ~5.2:1 over --c-bg, ~5.14:1 over the card surface
+  /* ---- Substrate: light tonal surfaces ------------------------------- */
+  --c-bg: 249 249 255; /* #f9f9ff — background / surface-bright */
+  --c-surface-lowest: 255 255 255; /* #ffffff — white cards */
+  --c-surface: 240 243 255; /* #f0f3ff — surface-container-low */
+  --c-elevated: 231 238 255; /* #e7eeff — surface-container */
+  --c-surface-high: 222 232 255; /* #dee8ff — surface-container-high */
+  --c-surface-highest: 216 227 251; /* #d8e3fb — container-highest / variant */
+  --c-surface-dim: 207 218 242; /* #cfdaf2 — surface-dim */
+  --c-border: 191 200 201; /* #bfc8c9 — outline-variant */
+
+  /* #404849 (on-surface-variant). CONTRAST BUDGET — read this before
+     raising an alpha. At full opacity this is ~8.6:1 on --c-bg. But
+     muted is almost always composited at reduced alpha, and the type
+     scale is anchored low (xs 12.5px, sm 13.5px, StatTile sub 11px), so
+     EVERY muted use is NORMAL text and needs 4.5:1, not the 3:1
+     large-text allowance. Measured composited ratios on #f9f9ff:
+       /70  ~4.3:1   FAILS AA — PROHIBITED for text
+       /75  ~4.6:1   below the permitted floor — PROHIBITED for text
+       /80  ~4.9:1 over --c-bg, ~4.8:1 over white card surfaces
      HARD FLOOR: /80 is the MINIMUM permitted alpha for muted TEXT.
      /70 and below is for decorative rules, dividers and icons only —
      never for anything a user has to read. */
-  --c-muted: 150 166 184;
-  --c-text: 233 240 246; /* #E9F0F6 — 15.4:1 on --c-bg */
+  --c-muted: 64 72 73;
+  --c-text: 17 28 45; /* #111c2d — on-surface, 15.8:1 on --c-bg */
+  --c-outline: 112 121 121; /* #707979 — outline */
 
-  /* ---- Signal: a sharp, slightly acid teal. Not SaaS mint. ---------- */
-  --c-primary: 34 227 176; /* #22E3B0 — the instrument needle */
-  --c-primary-fg: 3 18 14; /* #03120E — legible on primary (13.9:1) */
-  /* Accent is a cold cyan-blue, one hop off "electric blue" so the pair
-     reads as two instrument channels rather than a gradient. */
-  --c-accent: 96 165 250; /* #60A5FA */
-  /* A rarely-used third channel: signal violet for "aggregated/shared". */
-  --c-signal: 167 139 250; /* #A78BFA */
+  /* ---- Signal: deep teal ink ---------------------------------------- */
+  --c-primary: 0 58 62; /* #003a3e — primary */
+  --c-primary-fg: 255 255 255; /* #ffffff — on-primary */
+  --c-accent: 15 82 87; /* #0f5257 — primary-container (buttons, active nav) */
+  --c-on-primary-container: 137 196 201; /* #89c4c9 */
+  --c-signal: 43 103 108; /* #2b676c — surface-tint */
+  --c-primary-fixed: 178 237 242; /* #b2edf2 */
+  --c-primary-fixed-dim: 150 208 214; /* #96d0d6 */
+  --c-on-primary-fixed: 0 32 34; /* #002022 */
+  --c-on-primary-fixed-variant: 8 79 84; /* #084f54 */
+
+  /* ---- Secondary: amber ink ------------------------------------------ */
+  --c-caution: 144 77 0; /* #904d00 — secondary */
+  --c-hazard-pothole: 254 147 44; /* #fe932c — secondary-container (hazard cards) */
+  --c-on-secondary-container: 102 53 0; /* #663500 */
+  --c-secondary-fixed: 255 220 195; /* #ffdcc3 */
+  --c-secondary-fixed-dim: 255 183 125; /* #ffb77d */
+  --c-on-secondary-fixed: 47 21 0; /* #2f1500 */
+  --c-on-secondary-fixed-variant: 110 57 0; /* #6e3900 */
+
+  /* ---- Tertiary: verified green -------------------------------------- */
+  --c-justified: 0 60 39; /* #003c27 — tertiary */
+  --c-tertiary-container: 0 85 58; /* #00553a */
+  --c-on-tertiary-container: 90 206 156; /* #5ace9c */
+  --c-tertiary-fixed: 133 248 196; /* #85f8c4 */
+  --c-tertiary-fixed-dim: 104 219 169; /* #68dba9 */
+  --c-on-tertiary-fixed: 0 33 20; /* #002114 */
+  --c-on-tertiary-fixed-variant: 0 81 55; /* #005137 */
 
   /* ---- Status --------------------------------------------------------- */
-  --c-justified: 52 214 145; /* #34D691 */
-  --c-caution: 250 190 88; /* #FABE58 */
-  --c-danger: 250 116 116; /* #FA7474 */
-  --c-info: 86 198 248; /* #56C6F8 */
+  --c-danger: 186 26 26; /* #ba1a1a — error */
+  --c-error-container: 255 218 214; /* #ffdad6 */
+  --c-on-error-container: 147 0 10; /* #93000a */
+  --c-info: 11 87 208; /* #0b57d0 — AA on light at text sizes */
 
   /* ---- Hazard channels ----------------------------------------------- */
-  --c-hazard-pothole: 255 116 94; /* #FF745E */
-  --c-hazard-speedbreaker: 250 190 88; /* #FABE58 */
-  --c-hazard-waterlogging: 96 165 250; /* #60A5FA */
-  --c-hazard-debris: 167 139 250; /* #A78BFA */
+  --c-hazard-speedbreaker: 144 77 0; /* #904d00 — amber ink */
+  --c-hazard-waterlogging: 15 82 87; /* #0f5257 — deep teal */
+  --c-hazard-debris: 186 26 26; /* #ba1a1a — error red */
+
+  /* ---- Inverse (toasts, modal scrims) -------------------------------- */
+  --c-inverse-surface: 38 49 67; /* #263143 */
+  --c-inverse-on-surface: 236 241 255; /* #ecf1ff */
 
   /* ---- Type ---------------------------------------------------------- */
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-display: Manrope, Inter, ui-sans-serif, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* ---- Layout -------------------------------------------------------- */
   --phone-w: 430px;
@@ -88,19 +120,19 @@
   --stagger: var(--stagger-base);
 
   /* =================================================================
-     ELEVATION LANGUAGE — exactly three named levels, all hue-tinted.
-     Level 0 (flush)  : no shadow, hairline only. Rows, list items.
-     Level 1 (raised) : cards at rest. Cool shadow + primary breath.
-     Level 2 (lifted) : hovered/active cards, sheets, the nav bar.
-     Shadows are never neutral gray — they carry the primary hue so the
-     dark UI reads as backlit glass instead of paper.
+     ELEVATION LANGUAGE — light system. Two named levels in neutral
+     ink (dark shadows on light surfaces, never white insets), plus a
+     restrained chrome shadow for fixed header/nav. Spec §3:
+     header 0 1px 8px rgba(0,0,0,0.04); nav 0 -2px 10px rgba(0,0,0,0.04).
      ================================================================= */
-  --shadow-raised: 0 1px 0 0 rgb(255 255 255 / 0.04) inset,
-    0 2px 6px -2px rgb(2 10 14 / 0.7), 0 10px 26px -12px rgb(var(--c-primary) / 0.13);
-  --shadow-lifted: 0 1px 0 0 rgb(255 255 255 / 0.06) inset,
-    0 6px 14px -4px rgb(2 10 14 / 0.78), 0 22px 48px -18px rgb(var(--c-primary) / 0.24);
-  --shadow-signal: 0 0 0 1px rgb(var(--c-primary) / 0.32),
-    0 0 22px -6px rgb(var(--c-primary) / 0.4), 0 10px 30px -14px rgb(var(--c-primary) / 0.3);
+  --shadow-raised: 0 1px 3px 0 rgb(17 28 45 / 0.06), 0 1px 8px 0 rgb(17 28 45 / 0.04);
+  --shadow-lifted: 0 2px 6px -1px rgb(17 28 45 / 0.08), 0 8px 24px -6px rgb(17 28 45 / 0.1);
+  --shadow-chrome: 0 1px 8px rgb(0 0 0 / 0.04);
+  /* The old "signal" rim is now a quiet emphasis ring for live surfaces:
+     an inset primary tinted stroke plus a soft neutral shadow. No blur
+     halo. AnimatedCard (untouchable) still names this token. */
+  --shadow-signal: 0 0 0 1px rgb(var(--c-primary) / 0.22),
+    0 1px 8px 0 rgb(17 28 45 / 0.05);
 }
 
 * {
@@ -108,8 +140,8 @@
   box-sizing: border-box;
 }
 
-/* Global focus ring. Two-tone so it survives on both dark and tinted
-   surfaces: dark core + primary halo. */
+/* Global focus ring. Deep teal on light surfaces — AA against every tonal
+   background in the palette. */
 /* No `border-radius` here. This rule sits later in the stylesheet than
    .rounded-control / .rounded-full / .rounded-panel at equal specificity
    (0,1,0), so setting a radius here silently overrode the corner of every
@@ -128,13 +160,9 @@ body,
 
 body {
   margin: 0;
-  /* Off-axis light source: the glow is pushed left-of-centre and a colder
-     accent wash sits top-right. Deliberately not a symmetric halo. */
-  background:
-    radial-gradient(940px 560px at 28% -14%, rgb(var(--c-primary) / 0.1), transparent 62%),
-    radial-gradient(760px 520px at 96% 4%, rgb(var(--c-accent) / 0.07), transparent 58%),
-    rgb(var(--c-bg));
-  background-attachment: fixed;
+  /* Flat light canvas per spec §1 — the reference app's body is a clean
+     tonal field. Desktop-atmosphere washes live in PhoneFrame, not here. */
+  background: rgb(var(--c-bg));
   color: rgb(var(--c-text));
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -142,21 +170,51 @@ body {
   overscroll-behavior: none;
 }
 
+/* Spec §1: selection = primary-fixed. */
+::selection {
+  background: rgb(var(--c-primary-fixed));
+  color: rgb(var(--c-on-primary-fixed));
+}
+
+/* Light, unobtrusive scrollbars for the desktop surround. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--c-surface-highest)) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--c-surface-highest));
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Spec §1: main > :first-child/:last-child margin reset. Screens handle
+   their own spacing; this guards odd double-gaps at column edges. */
+main > :first-child {
+  margin-top: 0;
+}
+main > :last-child {
+  margin-bottom: 0;
+}
+
 @layer components {
   /* ---------------- Surfaces ---------------------------------------- */
 
-  /* Hairline that reads crisply on the dark substrate. */
+  /* Hairline that reads crisply on the light substrate. */
   .hairline {
     @apply border border-border/70;
   }
 
-  /* Level 1. The default resting card. The inner top highlight is what
-     makes it read as a physical panel rather than a filled rectangle. */
+  /* Level 1. The default resting card: solid white per spec §4. */
   .card {
-    @apply rounded-panel bg-surface/90 hairline;
+    @apply rounded-xl bg-surface-container-lowest;
+    border: 1px solid rgb(var(--c-border) / 0.5);
     box-shadow: var(--shadow-raised);
-    /* Light rakes in from the top-left, matching the body wash. */
-    background-image: linear-gradient(148deg, rgb(255 255 255 / 0.04), transparent 44%);
   }
 
   /* Level 2. Applied on hover/active by AnimatedCard, or statically for
@@ -165,8 +223,11 @@ body {
     box-shadow: var(--shadow-lifted);
   }
 
+  /* Chrome-only glass (fixed header/nav): light surface at /70 with the
+     subtle blur. Content cards never use this. Kept because RideHud and
+     DemoBar reference the class. */
   .glass {
-    @apply bg-surface/70 backdrop-blur-xl hairline;
+    @apply bg-surface-container-lowest/70 backdrop-blur-xl;
   }
 
   /* ---------------- Type ------------------------------------------- */
@@ -178,83 +239,58 @@ body {
     font-family: var(--font-display);
   }
 
-  /* Big readouts: Manrope, tightened, tabular. The instrument voice. */
+  /* Big readouts: display face, tightened, tabular. */
   .metric {
     font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     line-height: 0.95;
   }
 
   .display {
     font-family: var(--font-display);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
   }
 
+  /* Spec §5: no gradient text. Kept as a solid-ink alias so existing
+     markup (Splash h1) resolves to the light system. */
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(
-      104deg,
-      rgb(var(--c-text)),
-      rgb(var(--c-primary)) 92%
-    );
+    @apply text-content;
   }
 
-  /* Small all-caps label. Wide tracking is what sells the HUD register. */
+  /* Small all-caps label — now the mono register per spec §1 (labels =
+     JetBrains Mono). Wide tracking sells the instrument voice. */
   .eyebrow {
-    @apply text-[10px] font-bold uppercase leading-none tracking-[0.18em] text-muted;
+    font-family: var(--font-mono);
+    @apply text-[11px] font-semibold uppercase leading-none tracking-[0.08em] text-primary;
   }
 
   /* ---------------- Textures --------------------------------------- */
+  /* Spec §5: bg-grid / bg-scan / grain are removed from the light system.
+     The classes are retained as no-op transparent patterns so any
+     straggler usage in untouched files cannot paint a dark lattice. */
 
-  /* Engineering grid behind maps and hero surfaces. */
-  .bg-grid {
-    background-image:
-      linear-gradient(rgb(var(--c-border) / 0.45) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(var(--c-border) / 0.45) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-
-  /* Finer grid, for surfaces that need texture without a visible lattice. */
+  .bg-grid,
   .bg-grid-fine {
-    background-image:
-      linear-gradient(rgb(var(--c-border) / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(var(--c-border) / 0.3) 1px, transparent 1px);
-    background-size: 11px 11px;
+    background-image: none;
   }
 
-  /* Horizontal scanline wash — the single most "instrument" texture here.
-     Pair with a low opacity on decorative overlays only. */
   .bg-scan {
-    background-image: repeating-linear-gradient(
-      to bottom,
-      rgb(var(--c-primary) / 0.05) 0px,
-      rgb(var(--c-primary) / 0.05) 1px,
-      transparent 1px,
-      transparent 4px
-    );
+    background-image: none;
   }
 
-  /* SVG fractal-noise grain. Kills banding on the big radial washes and
-     stops large flat areas looking synthetic. Decorative → aria-hidden. */
   .grain::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.028;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    content: none;
   }
 
   /* ---------------- Loading ---------------------------------------- */
 
-  /* Designed skeleton. A sheen sweeps across a tinted block — never a
-     spinner. Uses transform only, so it stays on the compositor. */
+  /* Designed skeleton. A sheen sweeps across a light tonal block — never
+     a spinner. Uses transform only, so it stays on the compositor. */
   .skeleton {
     @apply relative overflow-hidden rounded-control;
-    background-color: rgb(var(--c-elevated) / 0.6);
+    background-color: rgb(var(--c-elevated));
   }
 
   /* The sweep lives on the pseudo-element, so an inline `animationDelay`
@@ -268,8 +304,7 @@ body {
     background-image: linear-gradient(
       90deg,
       transparent,
-      rgb(var(--c-primary) / 0.09) 45%,
-      rgb(255 255 255 / 0.06) 55%,
+      rgb(255 255 255 / 0.7) 55%,
       transparent
     );
     animation: skeleton-sweep 1.5s var(--ease-hover) infinite;
@@ -351,10 +386,10 @@ body {
   }
 }
 
-/* Desktop: the page behind the phone goes darker than the app itself so
-   the handset reads as a lit object on an unlit surface. */
+/* Desktop: the page behind the phone takes the light tonal canvas so the
+   handset reads as a physical device on a desk surface (see PhoneFrame). */
 @media (min-width: 640px) {
   body {
-    background-color: rgb(2 4 7);
+    background-color: rgb(var(--c-surface));
   }
 }

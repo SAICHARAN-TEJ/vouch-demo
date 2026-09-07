@@ -11,31 +11,19 @@ import { useAnimationConfig } from "@/hooks/useAnimationConfig";
  * Stagger: n/a
  * Reduced motion: the bar renders at its final length immediately.
  *
- * A leading edge cap sits at the tip of the fill so the meter reads as a live
- * instrument rather than a static bar.
+ * Light system per spec §4: a light tonal track (surface-container) with a
+ * SOLID tonal fill — no gradient, no glow cap. The readout stays primary ink.
  */
 
 type Tone = "primary" | "justified" | "caution" | "danger" | "info";
 
-const CAP: Record<Tone, string> = {
-  primary: "shadow-[0_0_12px_-1px_rgb(var(--c-primary)/0.55)]",
-  justified: "shadow-[0_0_12px_-1px_rgb(var(--c-justified)/0.55)]",
-  caution: "shadow-[0_0_12px_-1px_rgb(var(--c-caution)/0.55)]",
-  danger: "shadow-[0_0_12px_-1px_rgb(var(--c-danger)/0.55)]",
-  info: "shadow-[0_0_12px_-1px_rgb(var(--c-info)/0.55)]",
-};
-
-/**
- * The fill is darkest at its base and brightest at the tip, so the leading edge
- * reads as the live value. A gradient does this without an extra element and
- * without being distorted by scaleX, which a positioned cap would be.
- */
-const GRADIENT: Record<Tone, string> = {
-  primary: "bg-gradient-to-r from-primary/45 to-primary",
-  justified: "bg-gradient-to-r from-justified/45 to-justified",
-  caution: "bg-gradient-to-r from-caution/45 to-caution",
-  danger: "bg-gradient-to-r from-danger/45 to-danger",
-  info: "bg-gradient-to-r from-info/45 to-info",
+/** Solid fills — gradient and glow caps removed per spec §5. */
+const FILL: Record<Tone, string> = {
+  primary: "bg-primary",
+  justified: "bg-tertiary",
+  caution: "bg-secondary",
+  danger: "bg-error",
+  info: "bg-info",
 };
 
 /** Horizontal 0..1 confidence meter with an animated fill and a % readout. */
@@ -86,7 +74,7 @@ export function ConfidenceBar({
         </div>
       )}
       <div
-        className="relative h-2 w-full overflow-hidden rounded-full bg-content/[0.09] shadow-seated"
+        className="relative h-2 w-full overflow-hidden rounded-full bg-surface-container"
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}
@@ -98,8 +86,7 @@ export function ConfidenceBar({
           className={cn(
             "h-full w-full origin-left rounded-full transition-transform ease-entrance",
             a.reduced ? "duration-0" : "duration-[600ms]",
-            GRADIENT[tone],
-            pct > 0 && CAP[tone],
+            FILL[tone],
           )}
           style={{ transform: `scaleX(${shown / 100})` }}
         />

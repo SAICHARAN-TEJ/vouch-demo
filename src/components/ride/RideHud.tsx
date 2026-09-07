@@ -2,8 +2,21 @@ import type { ReactNode } from "react";
 import { useRideStore } from "@/store/rideStore";
 import { Icon } from "@/components/ui/Icon";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
+import { cn } from "@/lib/cn";
 
-/** Live telemetry overlaid on the ride map: speed, distance, elapsed + status. */
+/**
+ * Animation: hud-pulse
+ * Trigger: loops while the ride is live
+ * Duration: 1s ping  Easing: default pulse curve
+ * Properties: transform + opacity of a solid dot — no blur halo
+ * Stagger: n/a
+ * Reduced motion: the ping collapses; the solid dot remains.
+ *
+ * Live telemetry overlaid on the ride map: speed, distance, elapsed + status.
+ * Light system per spec §4 Active Ride: white HUD panels (surface-container-
+ * lowest) with soft shadows, tonal labels. The `.glass` chrome treatment is
+ * retained for these floating panels.
+ */
 export function RideHud({ onExit }: { onExit?: () => void }) {
   const speedKmh = useRideStore((s) => s.speedKmh);
   const distanceKm = useRideStore((s) => s.distanceKm);
@@ -25,7 +38,7 @@ export function RideHud({ onExit }: { onExit?: () => void }) {
           <button
             onClick={onExit}
             aria-label="End ride"
-            className="pointer-events-auto grid h-touch w-touch shrink-0 place-items-center rounded-control glass text-muted transition-[color,background-color] duration-micro hover:bg-content/[0.08] hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="pointer-events-auto grid h-touch w-touch shrink-0 place-items-center rounded-xl glass text-muted transition-[color,background-color] duration-micro hover:bg-surface-container hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Icon name="X" className="h-5 w-5" />
           </button>
@@ -34,7 +47,11 @@ export function RideHud({ onExit }: { onExit?: () => void }) {
 
       {/* Telemetry cluster */}
       <div className="mt-3 grid grid-cols-3 gap-2">
-        <HudTile value={<AnimatedNumber value={speedKmh} duration="fast" />} unit="km/h" />
+        <HudTile
+          value={<AnimatedNumber value={speedKmh} duration="fast" />}
+          unit="km/h"
+          accent
+        />
         <HudTile value={<AnimatedNumber value={distanceKm} decimals={1} duration="fast" />} unit="km" />
         <HudTile
           value={<AnimatedNumber value={elapsedS} duration="fast" format={formatElapsed} />}
@@ -45,10 +62,17 @@ export function RideHud({ onExit }: { onExit?: () => void }) {
   );
 }
 
-function HudTile({ value, unit }: { value: ReactNode; unit: string }) {
+function HudTile({ value, unit, accent }: { value: ReactNode; unit: string; accent?: boolean }) {
   return (
-    <div className="glass min-w-0 rounded-panel px-3 py-2.5 shadow-raised sm:px-3.5">
-      <div className="metric truncate text-xl font-extrabold leading-none text-content sm:text-2xl">{value}</div>
+    <div className="glass min-w-0 rounded-xl px-3 py-2.5 shadow-raised sm:px-3.5">
+      <div
+        className={cn(
+          "metric truncate text-xl font-extrabold leading-none sm:text-2xl",
+          accent ? "text-primary" : "text-content",
+        )}
+      >
+        {value}
+      </div>
       <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
         {unit}
       </div>

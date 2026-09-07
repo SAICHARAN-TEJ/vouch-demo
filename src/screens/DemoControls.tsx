@@ -7,6 +7,12 @@ import { SCENARIO_LIST, type ScenarioDef } from "@/config/scenarios";
 import { useDemoController } from "@/hooks/useDemoController";
 import { cn } from "@/lib/cn";
 
+/**
+ * Light system per spec §4: scenario cards on white surfaces with tonal icon
+ * tiles; the hero scenario gets the primary emphasis ring. All functionality,
+ * labels and keyboard access unchanged (e2e asserts "Pothole + Vehicle",
+ * "Reset demo", "Demo Controls").
+ */
 export function DemoControls() {
   const navigate = useNavigate();
   const { trigger, reset, isBusy, error } = useDemoController();
@@ -29,7 +35,7 @@ export function DemoControls() {
       />
 
       <div className="flex flex-col gap-4 p-4 pb-8">
-        <div className="rounded-xl bg-white/[0.03] p-3.5 hairline">
+        <div className="rounded-xl bg-surface-container-low p-3.5">
           <div className="flex gap-2.5">
             <Icon name="Info" className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <p className="text-xs leading-relaxed text-muted">
@@ -40,7 +46,7 @@ export function DemoControls() {
         </div>
 
         {error && (
-          <div role="alert" className="rounded-xl bg-danger/10 p-3.5 text-sm text-danger ring-1 ring-inset ring-danger/25">
+          <div role="alert" className="rounded-xl bg-error-container/60 p-3.5 text-sm text-on-error-container">
             {error}
           </div>
         )}
@@ -52,14 +58,14 @@ export function DemoControls() {
               onClick={() => void run(s)}
               disabled={isBusy}
               className={cn(
-                "card flex w-full items-center gap-3 p-3.5 text-left transition hover:bg-white/[0.04] disabled:cursor-wait disabled:opacity-60",
-                s.isHero && "ring-1 ring-primary/50 shadow-glow",
+                "card flex w-full items-center gap-3 p-3.5 text-left transition hover:bg-surface-container-low/40 disabled:cursor-wait disabled:opacity-60",
+                s.isHero && "ring-1 ring-primary/40",
               )}
             >
               <div
                 className={cn(
-                  "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5",
-                  s.tone === "caution" ? "text-caution" : "text-primary",
+                  "grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container",
+                  s.tone === "caution" ? "text-secondary" : "text-primary",
                 )}
               >
                 <Icon name={s.icon} className="h-5 w-5" />
@@ -68,7 +74,7 @@ export function DemoControls() {
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-content">{s.label}</h3>
                   {s.isHero && (
-                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                    <span className="rounded-sm bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
                       Hero
                     </span>
                   )}

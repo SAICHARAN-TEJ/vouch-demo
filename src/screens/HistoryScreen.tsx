@@ -23,6 +23,17 @@ const MANOEUVRE_ICON: Record<ManoeuvreType, string> = {
   sudden_swerve: "Activity",
 };
 
+/**
+ * Animation: history-entrance
+ * Trigger: mount + toggle expansion (animate-fade-up on the detail block)
+ * Duration: 480ms  Easing: entrance
+ * Properties: transform + opacity only
+ * Stagger: 100ms tight stagger on trip cards
+ * Reduced motion: global collapse renders final state instantly.
+ *
+ * Light system per spec §4 Trip Log recipe: white cards with mono eyebrows,
+ * icon tiles on surface-container, teal verified accents.
+ */
 export function HistoryScreen() {
   const { data: history = [], isLoading, error } = useHistory();
   const [openId, setOpenId] = useState<string | null>(null);
@@ -31,10 +42,8 @@ export function HistoryScreen() {
     <div className="relative flex flex-col overflow-hidden">
       <ScreenHeader title="Ride History" subtitle="Today's analysed manoeuvres" />
 
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-header h-64 bg-grid-fine opacity-20 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
-
       <div className="relative flex flex-col gap-5 p-4 pb-8">
-        <div className="flex items-end justify-between gap-4 border-b border-border/60 pb-3">
+        <div className="flex items-end justify-between gap-4 border-b border-outline-variant/50 pb-3">
           <div>
             <p className="eyebrow mb-1.5 text-primary">Archive / Demo day</p>
             <h2 className="font-display text-lg font-bold text-content">Context records</h2>
@@ -51,17 +60,17 @@ export function HistoryScreen() {
         {isLoading && (
           <div role="group" aria-label="Loading history" className="flex flex-col gap-2.5">
             {[0, 1, 2].map((i) => (
-              <SkeletonCard key={i} meter={false} className="border-border/70" />
+              <SkeletonCard key={i} meter={false} />
             ))}
           </div>
         )}
         {error && (
-          <div role="alert" className="rounded-control bg-danger/10 p-3 text-xs text-danger ring-1 ring-inset ring-danger/25">
+          <div role="alert" className="rounded-xl bg-error-container/60 p-3 text-xs text-on-error-container">
             Unable to load ride history. Try again after reconnecting.
           </div>
         )}
         {!isLoading && !error && history.length === 0 && (
-          <div className="mt-12 rounded-panel border border-dashed border-border/80 bg-white/[0.02] px-5 py-10 text-center">
+          <div className="mt-12 rounded-xl border border-dashed border-outline-variant bg-surface-container-low px-5 py-10 text-center">
             <Icon name="Clock" className="mx-auto h-8 w-8 text-muted" />
             <p className="mt-2 text-sm text-muted">No manoeuvres analysed yet.</p>
           </div>
@@ -98,17 +107,17 @@ function HistoryItem({
   const rows = signalRows(ev);
 
   return (
-    <Card padded={false} className="overflow-hidden border-border/80 bg-elevated/80 shadow-seated">
+    <Card padded={false} className="overflow-hidden">
       <button
         type="button"
         aria-expanded={open}
         onClick={onToggle}
-        className="group flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        className="group flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-container-low/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
       >
         <div
           className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-control bg-white/5 ring-1 ring-inset ring-white/[0.06]",
-            justified ? "text-justified" : "text-caution",
+            "grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container",
+            justified ? "text-tertiary" : "text-secondary",
           )}
         >
           <Icon name={MANOEUVRE_ICON[ev.eventType]} className="h-5 w-5" />
@@ -131,7 +140,7 @@ function HistoryItem({
       </button>
 
       {open && (
-        <div className="space-y-3 border-t border-border/60 bg-bg/25 px-4 pb-4 pt-3 animate-fade-up">
+        <div className="space-y-3 border-t border-outline-variant/40 bg-surface-container-low/40 px-4 pb-4 pt-3 animate-fade-up">
           <ConfidenceBar value={r.confidence} tone={justified ? "justified" : "caution"} />
           <ExplanationCard explanation={r.explanation} />
           {r.context.length > 0 && <ContextTags tags={r.context} />}

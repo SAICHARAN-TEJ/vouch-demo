@@ -29,8 +29,8 @@ export function RoadEventOverlay({
     >
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-primary/10 ring-1 ring-primary/30 animate-scale-in">
-            <Icon name="Users" className="h-8 w-8 text-primary" />
+          <div className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-primary-fixed ring-1 ring-primary/25 animate-scale-in">
+            <Icon name="Users" className="h-8 w-8 text-primary" strokeWidth={2.25} />
           </div>
           <h2 className="text-2xl font-extrabold text-content">
             Added to shared road intelligence

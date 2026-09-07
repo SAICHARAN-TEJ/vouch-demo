@@ -11,8 +11,9 @@ import { useAnimationConfig } from "@/hooks/useAnimationConfig";
  * Stagger: n/a
  * Reduced motion: the arc renders at its final offset with no sweep.
  *
- * Starts at 12 o'clock and sweeps clockwise. The track is inset-shadowed to
- * read as a machined channel, and the arc carries a soft bloom in its own hue.
+ * Starts at 12 o'clock and sweeps clockwise. Light system per spec §4: the
+ * track is a light tonal channel, the arc is solid primary ink. No ambient
+ * bloom, no drop-shadow glow.
  *
  * Accessibility: `role="progressbar"` derives its accessible name from aria
  * attributes and drops descendant content from the accessibility tree, so it
@@ -48,12 +49,6 @@ export function ProgressRing({
       className="relative inline-grid place-items-center"
       style={{ width: size, height: size }}
     >
-      {/* Ambient bloom behind the ring: gives the readout a lit-instrument
-          quality that a flat stroke cannot. Purely decorative. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-[12%] rounded-full bg-primary/[0.07] blur-xl"
-      />
       {/* The progressbar wraps the svg alone. `grid place-items-center` is
           inherited from the parent for the wrapper itself; the wrapper is
           `grid` too so the svg stays centred inside it. */}
@@ -80,7 +75,7 @@ export function ProgressRing({
             fill="none"
             strokeWidth={stroke}
             className={trackClassName}
-            opacity={0.55}
+            opacity={0.45}
           />
           <circle
             cx={size / 2}
@@ -96,9 +91,6 @@ export function ProgressRing({
               a.reduced ? "duration-0" : "duration-page",
               progressClassName,
             )}
-            style={{
-              filter: "drop-shadow(0 0 6px rgb(var(--c-primary) / 0.45))",
-            }}
           />
         </svg>
       </div>

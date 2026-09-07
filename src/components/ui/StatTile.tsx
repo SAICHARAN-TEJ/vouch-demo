@@ -5,8 +5,9 @@ import { Icon } from "./Icon";
 /**
  * Compact metric tile: icon chip + big value + caption.
  *
- * The value uses `.metric` (display face, tight tracking, tabular figures) so
- * numbers across a row of tiles line up on their digits.
+ * Light system per spec §4: white card, icon tile on surface-container.
+ * The value uses `.metric` (display face, tabular figures) so numbers across
+ * a row of tiles line up on their digits.
  */
 export function StatTile({
   icon,
@@ -33,12 +34,8 @@ export function StatTile({
       {icon && (
         <div
           className={cn(
-            "mb-2.5 inline-grid h-8 w-8 place-items-center rounded-control",
-            // Neutral chip, accent carried by the glyph. Tailwind v3 cannot
-            // apply an opacity modifier to currentColor, so tinting the chip
-            // per-accent would need a prop-side colour map the callers do not
-            // pass. The glyph alone is enough signal at this size.
-            "bg-content/[0.06] ring-1 ring-inset ring-border/70",
+            "mb-2.5 inline-grid h-8 w-8 place-items-center rounded-lg",
+            "bg-surface-container ring-1 ring-inset ring-outline-variant/60",
             accent,
           )}
         >

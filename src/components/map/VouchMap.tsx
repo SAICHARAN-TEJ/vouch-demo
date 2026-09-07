@@ -20,6 +20,7 @@ function markerClass(): string {
 }
 
 function markerVisualClass(type: RoadEventType, highlight: boolean): string {
+  // Tonal hazard channels per spec §1 — light system.
   const color: Record<RoadEventType, string> = {
     pothole: "bg-hazard-pothole",
     speed_breaker: "bg-hazard-speedbreaker",
@@ -27,7 +28,7 @@ function markerVisualClass(type: RoadEventType, highlight: boolean): string {
     debris: "bg-hazard-debris",
   };
   return cn(
-    "block rounded-full ring-2 ring-white/80 shadow-lg transition-transform",
+    "block rounded-full ring-2 ring-white/90 shadow-raised transition-transform",
     color[type],
     highlight ? "h-5 w-5 ring-primary animate-pulse" : "h-3.5 w-3.5",
   );
@@ -133,7 +134,7 @@ export function VouchMap({
 
     if (rider) {
       const el = document.createElement("div");
-      el.className = "block h-4 w-4 rounded-full bg-accent ring-4 ring-accent/30";
+      el.className = "block h-4 w-4 rounded-full bg-primary ring-4 ring-primary/25";
       markersRef.current.push(
         new maplibregl.Marker({ element: el })
           .setLngLat([rider.longitude, rider.latitude])
@@ -173,7 +174,7 @@ export function VouchMap({
         aria-hidden={!ready}
       />
       {!ready && (
-        <div className="pointer-events-none absolute right-3 top-3 rounded-full bg-bg/80 px-2.5 py-1 text-[10px] font-semibold text-muted ring-1 ring-border/60">
+        <div className="pointer-events-none absolute right-3 top-3 rounded-lg bg-surface-container-lowest px-2.5 py-1 text-[10px] font-semibold text-muted shadow-raised">
           Loading live map
         </div>
       )}

@@ -11,8 +11,10 @@ import { cn } from "@/lib/cn";
  *   variant, so `prefers-reduced-motion: reduce` gets NO movement at all —
  *   not merely a collapsed duration. The colour, shadow and focus-ring
  *   feedback still lands, so the card remains obviously interactive and
- *   obviously focused. The `will-change` hint is gated the same way, since
- *   there is no transform to promote when motion is off.
+ *   obviously focused.
+ *
+ * Light system per spec §4: solid white surface, rounded-xl, a soft
+ * neutral shadow — no glow rims, no gradient sheen.
  *
  * This is the CSS-only card. For entrance animation or spring press feedback
  * use `AnimatedCard` from `@/components/motion` — same visual language, driven
@@ -25,7 +27,10 @@ import { cn } from "@/lib/cn";
  */
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  /** Adds the live "signal" rim — used for hero and active surfaces. */
+  /**
+   * Legacy prop. In the light system live surfaces read as an emphasis
+   * state, not a glow — it resolves to the quiet `shadow-signal` ring.
+   */
   glow?: boolean;
   padded?: boolean;
 }

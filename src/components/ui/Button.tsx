@@ -5,46 +5,43 @@ import { cn } from "@/lib/cn";
  * Animation: button-press
  * Trigger: hover, focus-visible, and active (pointer or keyboard)
  * Duration: 180ms  Easing: hover
- * Properties: transform (translateY 1px, scale 0.985) + colour/shadow tokens
+ * Properties: transform (translateY 1px, scale 0.985) + colour tokens
  * Stagger: n/a
  * Reduced motion: the global duration collapse removes the movement; the
- *   colour and shadow change still lands, so feedback is never lost.
+ *   colour change still lands, so feedback is never lost.
  */
 
 type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
 /**
- * Variants are lit surfaces, not flat fills. Primary carries a top-to-bottom
- * falloff so it reads as an illuminated key, and the signal shadow puts the
- * primary hue into the shadow rather than neutral gray.
+ * Solid tonal fills per spec §4. Primary = primary-container (#0f5257) with
+ * white ink, pressed to primary (#003a3e). No gradients, no glow shadows.
  */
 const VARIANTS: Record<Variant, string> = {
   primary: cn(
-    "bg-gradient-to-b from-primary to-primary/80 text-primary-fg shadow-signal",
-    "hover:to-primary hover:brightness-[1.06]",
-    "active:brightness-[0.97]",
+    "bg-primary-container text-on-primary shadow-raised",
+    "active:bg-primary",
   ),
   secondary: cn(
-    "bg-elevated text-content hairline shadow-seated",
-    "hover:bg-elevated/70 hover:border-border",
+    "bg-surface-container-lowest text-primary ring-1 ring-inset ring-outline-variant",
+    "hover:bg-surface-container",
   ),
   outline: cn(
-    "hairline bg-transparent text-content",
-    "hover:border-primary/55 hover:bg-primary/[0.07] hover:text-primary",
+    "ring-1 ring-inset ring-outline-variant bg-transparent text-primary",
+    "hover:bg-surface-container",
   ),
-  ghost: "bg-transparent text-muted hover:bg-content/[0.06] hover:text-content",
+  ghost: "bg-transparent text-primary hover:bg-surface-container",
   danger: cn(
-    "bg-gradient-to-b from-danger to-danger/80 text-primary-fg",
-    "shadow-[0_0_0_1px_rgb(var(--c-danger)/0.35),0_10px_28px_-14px_rgb(var(--c-danger)/0.5)]",
-    "hover:to-danger hover:brightness-[1.06]",
+    "bg-error text-on-error shadow-raised",
+    "hover:bg-error/90",
   ),
 };
 
 const SIZES: Record<Size, string> = {
   sm: "h-touch px-3.5 text-xs",
   md: "h-11 px-4 text-sm",
-  lg: "h-14 px-6 text-base",
+  lg: "h-touch-standard px-6 text-base",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -65,15 +62,15 @@ export function Button({
       className={cn(
         // Every size clears 44px on its shortest edge.
         "tap-target inline-flex select-none items-center justify-center gap-2",
-        "rounded-control font-semibold tracking-[-0.005em]",
+        "rounded-xl font-semibold tracking-[-0.005em]",
         // Only compositor-friendly properties plus paint-level colour swaps.
-        "transition-[transform,box-shadow,background-color,border-color,color,filter]",
+        "transition-[transform,background-color,border-color,color,box-shadow]",
         "duration-micro ease-hover",
         "hover:[will-change:transform] active:translate-y-px active:scale-[0.985]",
         // Own focus treatment; suppress the global outline so they do not stack.
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         "focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-        "disabled:pointer-events-none disabled:opacity-45 disabled:shadow-none disabled:saturate-50",
+        "disabled:pointer-events-none disabled:opacity-45 disabled:shadow-none",
         VARIANTS[variant],
         SIZES[size],
         block && "w-full",

@@ -23,6 +23,19 @@ function trustLabel(score: number): string {
   return "New rider";
 }
 
+/**
+ * Animation: home-orchestrated-entrance
+ * Trigger: mount / route arrival
+ * Duration: 480ms per item  Easing: entrance
+ * Properties: transform + opacity only
+ * Stagger: 80ms via StaggerContainer; StatTile grid 80ms; shared-map card
+ *   enters with the cascade
+ * Reduced motion: global collapse; every state renders instantly.
+ *
+ * Light system per spec §4 Home recipe: identity row with greeting + status
+ * dot, white hero card with the score ring, solid primary-container CTA
+ * with a "Live Radar" sub-pill, white stat tiles, tonal inner chips.
+ */
 export function Home() {
   const navigate = useNavigate();
   const { data: rider, error: riderError } = useRider();
@@ -41,7 +54,7 @@ export function Home() {
 
   return (
     <div className="flex flex-col gap-5 p-4 pb-8">
-      {/* Header */}
+      {/* Identity row */}
       <div className="flex items-center justify-between pt-1">
         <Brand />
         <div className="flex items-center gap-2">
@@ -49,7 +62,7 @@ export function Home() {
           <button
             onClick={() => navigate("/demo")}
             aria-label="Demo controls"
-            className="grid h-touch w-touch place-items-center rounded-lg hairline text-muted transition hover:text-content"
+            className="grid h-touch w-touch place-items-center rounded-lg text-primary transition-colors hover:bg-surface-container"
           >
             <Icon name="Sparkles" className="h-5 w-5" />
           </button>
@@ -57,15 +70,21 @@ export function Home() {
       </div>
 
       {(riderError || roadEventsError || historyError || distanceError) && (
-        <div role="alert" className="rounded-xl bg-danger/10 p-3 text-xs text-danger ring-1 ring-inset ring-danger/25">
+        <div role="alert" className="rounded-xl bg-error-container/60 p-3 text-xs text-on-error-container">
           Some live data is unavailable. The demo can continue with local controls.
         </div>
       )}
 
-      {/* Greeting */}
-      <div>
-        <p className="text-sm text-muted">Welcome back,</p>
-        <h1 className="text-2xl font-extrabold text-content">{rider?.name ?? "Rider"}</h1>
+      {/* Greeting + status dot */}
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-body-sm text-muted">Welcome back,</p>
+          <h1 className="text-headline-lg-mobile font-bold text-content">{rider?.name ?? "Rider"}</h1>
+        </div>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-tertiary-fixed-dim/25 px-2.5 py-1 text-label-sm font-medium text-tertiary">
+          <span className="h-2 w-2 rounded-full bg-tertiary animate-breathe" />
+          Ready
+        </span>
       </div>
 
       {/* Score hero card */}
@@ -81,10 +100,8 @@ export function Home() {
           </div>
         </ProgressRing>
         <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold uppercase tracking-wide text-primary">
-            Vouch Score
-          </div>
-          <div className="mt-0.5 text-lg font-bold text-content">{trustLabel(score)}</div>
+          <div className="eyebrow">Vouch Score</div>
+          <div className="mt-0.5 text-label-lg font-bold text-primary">{trustLabel(score)}</div>
           <p className="mt-1 text-xs leading-relaxed text-muted">
             Built from context, not just actions.
           </p>
@@ -98,10 +115,16 @@ export function Home() {
         </div>
       </Card>
 
-      {/* Primary CTA */}
-      <Button block size="lg" onClick={startLiveRide}>
-        <Icon name="Radar" className="h-5 w-5" />
-        Start Live Ride
+      {/* Primary CTA per spec: primary-container fill + Live Radar sub-pill */}
+      <Button block size="lg" onClick={startLiveRide} className="justify-between px-stack-xl">
+        <span className="inline-flex items-center gap-2">
+          <Icon name="Radar" className="h-5 w-5" />
+          Start Live Ride
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-on-primary/10 px-2.5 py-1 text-label-sm font-medium">
+          <span className="h-2 w-2 rounded-full bg-tertiary-fixed animate-breathe" />
+          Live Radar
+        </span>
       </Button>
 
       {/* Today stats */}
@@ -122,7 +145,7 @@ export function Home() {
               icon="Activity"
               value={history.length}
               label="Road events"
-              accent="text-accent"
+              accent="text-secondary"
               className="h-full"
             />
           </StaggerItem>
@@ -132,7 +155,7 @@ export function Home() {
               value={verifiedHazards}
               label="Verified"
               sub="hazards"
-              accent="text-justified"
+              accent="text-tertiary"
               className="h-full"
             />
           </StaggerItem>
@@ -145,9 +168,9 @@ export function Home() {
           <button
             type="button"
             onClick={() => navigate("/map")}
-            className="flex min-h-[76px] w-full items-center gap-3 p-4 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="flex min-h-[76px] w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-container/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container text-primary">
               <Icon name="Map" className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">

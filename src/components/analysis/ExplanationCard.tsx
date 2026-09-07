@@ -4,6 +4,8 @@ import { Icon } from "@/components/ui/Icon";
 /**
  * "Vouch's reasoning" panel — the plain-language explanation from the Context
  * Engine. Reused by the verdict overlay, the road-event screen and history.
+ *
+ * Light system per spec §4: surface-container-low inner panel.
  */
 export function ExplanationCard({
   explanation,
@@ -15,7 +17,7 @@ export function ExplanationCard({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-xl bg-white/[0.03] p-3.5 hairline", className)}>
+    <div className={cn("rounded-xl bg-surface-container-low p-3.5", className)}>
       <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
         <Icon name="Sparkles" className="h-3.5 w-3.5 text-primary" />
         {title}

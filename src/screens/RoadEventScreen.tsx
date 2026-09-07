@@ -8,6 +8,17 @@ import { Icon } from "@/components/ui/Icon";
 import { useRoadEvents } from "@/hooks/queries";
 import { ROAD_EVENT_LABEL } from "@/config/labels";
 
+/**
+ * Animation: road-event-entrance
+ * Trigger: mount + scroll into view per section
+ * Duration: 480ms  Easing: entrance
+ * Properties: transform + opacity only
+ * Stagger: 35ms steps across detail rows
+ * Reduced motion: global collapse renders final state instantly.
+ *
+ * Light system per spec §4: the SchematicMap paints the light basemap; chips
+ * on surface-container-lowest with soft shadows replace the dark seated HUD.
+ */
 export function RoadEventScreen() {
   const { id } = useParams<{ id: string }>();
   const { data: roadEvents = [], isLoading, error } = useRoadEvents();
@@ -40,13 +51,11 @@ export function RoadEventScreen() {
     <div className="relative flex flex-col overflow-hidden">
       <ScreenHeader title={ROAD_EVENT_LABEL[event.type]} subtitle="Shared road intelligence" back />
 
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-header h-52 bg-grid-fine opacity-20 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
-
       <div className="relative flex flex-col gap-5 p-4 pb-8">
         <ScrollReveal revealId={`road-event-field-${event.id}`} distance={8}>
           <section
             aria-label="Hazard location"
-            className="relative h-[clamp(220px,34vh,280px)] overflow-hidden rounded-control border border-border/80 bg-bg shadow-raised"
+            className="relative h-[clamp(220px,34vh,280px)] overflow-hidden rounded-xl border border-outline-variant/50 bg-surface-container-low shadow-raised"
           >
             <SchematicMap
               roadEvents={[event]}
@@ -55,18 +64,15 @@ export function RoadEventScreen() {
               className="absolute inset-0"
             />
 
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-scan opacity-25" />
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/60 via-transparent to-bg/85" />
-
             <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-3">
-              <div className="rounded-control border border-border/70 bg-bg/80 px-2.5 py-2 shadow-seated backdrop-blur-md">
+              <div className="rounded-lg bg-surface-container-lowest px-2.5 py-2 shadow-raised">
                 <p className="eyebrow text-primary">Event field</p>
                 <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-content">
                   <Icon name="Radar" className="h-3.5 w-3.5 text-primary" />
                   Shared hazard signal
                 </p>
               </div>
-              <div className="rounded-control border border-border/70 bg-bg/80 px-2.5 py-2 text-right shadow-seated backdrop-blur-md">
+              <div className="rounded-lg bg-surface-container-lowest px-2.5 py-2 text-right shadow-raised">
                 <p className="eyebrow">Confidence</p>
                 <p className="tnum mt-0.5 font-display text-xl font-bold leading-none text-primary">
                   {Math.round(event.confidence * 100)}%
@@ -74,17 +80,12 @@ export function RoadEventScreen() {
               </div>
             </div>
 
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-border/60 bg-bg/80 px-3 py-2.5 backdrop-blur-md">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-outline-variant/50 bg-surface-container-lowest/95 px-3 py-2.5 backdrop-blur-md">
               <div className="flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
                 <span>Location lock</span>
                 <span className="tnum text-content">{event.latitude.toFixed(4)}, {event.longitude.toFixed(4)}</span>
               </div>
             </div>
-
-            <span aria-hidden="true" className="pointer-events-none absolute left-2 top-2 h-3 w-3 border-l border-t border-primary/70" />
-            <span aria-hidden="true" className="pointer-events-none absolute right-2 top-2 h-3 w-3 border-r border-t border-primary/70" />
-            <span aria-hidden="true" className="pointer-events-none absolute bottom-2 left-2 h-3 w-3 border-b border-l border-primary/70" />
-            <span aria-hidden="true" className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-primary/70" />
           </section>
         </ScrollReveal>
 
@@ -94,7 +95,7 @@ export function RoadEventScreen() {
 
         <section aria-labelledby="event-evidence-heading">
           <ScrollReveal revealId={`road-event-evidence-heading-${event.id}`} delay={110} distance={8}>
-            <div className="mb-2 flex items-end justify-between gap-3 border-b border-border/60 pb-3">
+            <div className="mb-2 flex items-end justify-between gap-3 border-b border-outline-variant/50 pb-3">
               <div>
                 <p className="eyebrow text-primary">Signal archive</p>
                 <h2 id="event-evidence-heading" className="mt-1 font-display text-lg font-bold text-content">
@@ -108,7 +109,7 @@ export function RoadEventScreen() {
             </div>
           </ScrollReveal>
 
-          <Card padded={false} className="mt-3 overflow-hidden divide-y divide-border/60">
+          <Card padded={false} className="mt-3 overflow-hidden divide-y divide-outline-variant/40">
             <ScrollReveal revealId={`road-event-first-detected-${event.id}`} delay={140} distance={8}>
               <DetailRow icon="Clock" label="First detected" value={event.firstDetected} />
             </ScrollReveal>
@@ -132,10 +133,10 @@ export function RoadEventScreen() {
         </section>
 
         <ScrollReveal revealId={`road-event-note-${event.id}`} delay={315} distance={8}>
-          <div className="rounded-xl bg-primary/[0.06] p-3.5 ring-1 ring-inset ring-primary/20">
+          <div className="rounded-xl bg-primary-fixed/40 p-3.5">
             <div className="flex gap-2.5">
               <Icon name="Sparkles" className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <p className="text-xs leading-relaxed text-muted">
+              <p className="text-xs leading-relaxed text-on-primary-fixed-variant">
                 This hazard's confidence grows as more riders independently confirm it —
                 turning individual manoeuvres into shared road intelligence.
               </p>

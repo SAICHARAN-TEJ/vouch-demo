@@ -4,7 +4,18 @@ import { Brand } from "@/components/ui/Brand";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 
-/** Splash — brand + core principle, auto-advances to Home (PRD §7). */
+/**
+ * Animation: splash-arrive
+ * Trigger: mount
+ * Duration: 3.5s float loop on the mark; 480ms fade-ups at 0/150/300ms
+ * Easing: entrance
+ * Properties: transform + opacity only
+ * Stagger: 150ms steps (mark → tagline → copy → CTA)
+ * Reduced motion: the global duration collapse lands every state instantly.
+ *
+ * Light canvas per spec §5: flat #f9f9ff, no grid, no glow washes. The brand
+ * mark is the spec §2 logo.
+ */
 export function Splash() {
   const navigate = useNavigate();
 
@@ -14,20 +25,24 @@ export function Splash() {
   }, [navigate]);
 
   return (
-    <div className="bg-grid relative flex h-full flex-col items-center justify-center overflow-hidden px-8 text-center">
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute inset-x-8 top-1/4 h-64 bg-primary/15 blur-3xl" />
-      <div className="pointer-events-none absolute inset-x-8 top-1/2 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+    <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-surface px-8 text-center">
+      {/* One soft tonal decoration: a primary-fixed halo behind the mark,
+          the only blur the light system allows (spec §4 score-hero decor). */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[30%] h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-fixed/50 blur-2xl"
+      />
+      <div className="pointer-events-none absolute inset-x-8 top-1/2 h-px bg-gradient-to-r from-transparent via-outline-variant to-transparent" />
 
       <Brand
         size={92}
         showText={false}
-        className="relative animate-float drop-shadow-[0_0_30px_rgb(var(--c-primary)/0.5)]"
+        className="relative animate-float"
       />
 
       <div className="relative mt-6 animate-fade-up">
         <p className="eyebrow mb-2 text-primary/80">Instrument-grade road intelligence</p>
-        <h1 className="display text-gradient text-5xl font-extrabold tracking-tight">Vouch</h1>
+        <h1 className="display text-5xl font-extrabold tracking-tight text-content">Vouch</h1>
       </div>
 
       <p className="relative mt-4 max-w-[24ch] text-balance text-base font-medium text-muted animate-fade-up [animation-delay:150ms]">

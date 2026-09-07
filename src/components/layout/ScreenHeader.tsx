@@ -11,11 +11,11 @@ import { cn } from "@/lib/cn";
  * Stagger: n/a
  * Reduced motion: colour-only feedback.
  *
- * Sticky, blurred screen header with optional back button and right slot.
- *
- * The subtitle is promoted to an eyebrow above the title. In an instrument
- * layout the small label establishes context first and the title lands as the
- * answer — reading it in the other order makes the title feel unlabelled.
+ * Fixed screen chrome per spec §3: an in-app status strip (mono time +
+ * network/wifi/battery glyphs) over an h-16 brand row. The row carries the
+ * logo + screen name on the left and the status slot on the right. This
+ * header owns the screen's `<h1>` — e2e asserts every screen heading, so
+ * the title must stay a real heading element, not decorative chrome text.
  */
 export function ScreenHeader({
   title,
@@ -38,46 +38,72 @@ export function ScreenHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 flex min-h-header items-center gap-3",
-        // gutter-tight (16px), not gutter (20px): the existing screens pad
-        // their content with p-4, and the header title has to sit on the same
-        // vertical line as the content beneath it.
-        "bg-bg/80 px-gutter-tight py-2.5 backdrop-blur-xl",
+        "sticky top-0 z-20",
+        // gutter-tight (16px) matches the screens' p-4 content line.
+        "bg-surface/90 px-gutter-tight pb-2.5 backdrop-blur-xl",
         // Safe-area aware: on a notched handset the sticky header is what sits
         // under the cutout, so it absorbs the inset rather than every screen.
-        "pt-[max(0.625rem,env(safe-area-inset-top))]",
+        "pt-[max(0.75rem,env(safe-area-inset-top))]",
         className,
       )}
+      style={{ boxShadow: "0 1px 8px rgb(0 0 0 / 0.04)" }}
     >
-      {back && (
-        <button
-          onClick={handleBack}
-          aria-label="Back"
-          className={cn(
-            "tap-target grid shrink-0 place-items-center rounded-control hairline text-muted",
-            "transition-[transform,background-color,color,border-color] duration-micro ease-hover",
-            "hover:-translate-x-px hover:bg-content/[0.06] hover:text-content",
-            "active:scale-95",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-          )}
-        >
-          <Icon name="ArrowLeft" className="h-5 w-5" />
-        </button>
-      )}
-      <div className="min-w-0 flex-1">
-        {subtitle && <p className="eyebrow truncate text-muted">{subtitle}</p>}
-        <h1 className="truncate font-display text-base font-bold tracking-[-0.02em] text-content">
-          {title}
-        </h1>
-      </div>
-      {right}
-
-      {/* Asymmetric rule: full strength under the title, fading out to the
-          right. A uniform 1px border makes every screen look the same. */}
+      {/* Row 1 — in-app status strip: mono clock + connectivity glyphs. */}
       <div
+        className="flex h-7 items-center justify-between text-on-surface-variant"
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-primary/25 via-border to-transparent"
-      />
+      >
+        <span className="font-mono text-label-sm font-medium tracking-[0.04em]">
+          12:45
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Icon name="Signal" className="h-4 w-4" strokeWidth={2} />
+          <Icon name="Wifi" className="h-4 w-4" strokeWidth={2} />
+          <Icon name="BatteryFull" className="h-4 w-4" strokeWidth={2} />
+        </span>
+      </div>
+
+      {/* Row 2 — brand row. Back key sits in place of the logo when used. */}
+      <div className="flex min-h-16 items-center gap-3">
+        {back ? (
+          <button
+            onClick={handleBack}
+            aria-label="Back"
+            className={cn(
+              "tap-target grid shrink-0 place-items-center rounded-lg text-primary",
+              "transition-[transform,background-color,color] duration-micro ease-hover",
+              "hover:-translate-x-px hover:bg-surface-container active:scale-95",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+            )}
+          >
+            <Icon name="ArrowLeft" className="h-5 w-5" />
+          </button>
+        ) : (
+          <img
+            src="/vouch.svg"
+            width={32}
+            height={32}
+            alt=""
+            className="h-8 w-8 shrink-0 rounded-lg"
+          />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-baseline gap-2">
+            <span className="font-display text-headline-sm font-bold tracking-tight text-primary">
+              Vouch
+            </span>
+            {subtitle && (
+              <span className="truncate font-mono text-label-sm uppercase tracking-[0.04em] text-on-surface-variant">
+                {subtitle}
+              </span>
+            )}
+          </div>
+          <h1 className="truncate text-body-lg font-semibold leading-tight text-on-surface">
+            {title}
+          </h1>
+        </div>
+        {right}
+      </div>
     </header>
   );
 }

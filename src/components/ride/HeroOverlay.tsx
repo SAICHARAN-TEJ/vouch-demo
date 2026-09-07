@@ -39,11 +39,11 @@ function ResumedOverlay() {
   return (
     <OverlayShell
       className="items-center justify-center text-center"
-      scrimClassName="bg-bg/70"
+      scrimClassName="bg-inverse-surface/40"
     >
       <div className="flex flex-col items-center animate-scale-in">
-        <div className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-justified/15 ring-1 ring-justified/30">
-          <Icon name="Check" className="h-8 w-8 text-justified" strokeWidth={3} />
+        <div className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-tertiary-fixed ring-1 ring-tertiary/30">
+          <Icon name="Check" className="h-8 w-8 text-tertiary" strokeWidth={3} />
         </div>
         <h2 className="text-xl font-bold text-content">Context saved</h2>
         <p className="mt-1 text-sm text-muted">Resuming your ride…</p>

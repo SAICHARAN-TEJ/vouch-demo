@@ -21,7 +21,7 @@ export function OverlayShell({
 }) {
   return (
     <div className="absolute inset-0 z-30 flex animate-fade-in flex-col">
-      <div className={cn("absolute inset-0 bg-bg/85 backdrop-blur-md", scrimClassName)} />
+      <div className={cn("absolute inset-0 bg-inverse-surface/60 backdrop-blur-sm", scrimClassName)} />
       <div
         onClick={onSkip}
         onKeyDown={(event) => {

@@ -12,6 +12,8 @@ import { cn } from "@/lib/cn";
  * Reduced motion: the sweep stops; the tinted block remains as a static
  *   placeholder, which still communicates "content is coming".
  *
+ * Light system per spec §5: bg-surface-container block with a white sheen.
+ *
  * Deliberately not a spinner. A spinner says "wait"; a skeleton says "here is
  * the shape of what you are about to read", which is the honest signal for an
  * app whose whole job is showing structured telemetry.
@@ -22,7 +24,7 @@ export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
   height?: string;
   /** Tailwind width utility, e.g. "w-2/3". */
   width?: string;
-  /** Corner treatment. "pill" for avatars and chips, "panel" for surfaces. */
+  /** Corner treatment. */
   shape?: "cell" | "control" | "panel" | "pill";
   /**
    * Animation offset in ms, for staggering groups. Emitted as the

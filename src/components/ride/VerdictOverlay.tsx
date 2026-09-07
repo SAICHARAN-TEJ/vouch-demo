@@ -63,7 +63,7 @@ export function VerdictOverlay({
 function ScoreDelta({ change }: { change: number }) {
   if (change === 0) {
     return (
-      <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm font-semibold text-muted hairline">
+      <div className="inline-flex items-center gap-2 rounded-full bg-surface-container px-4 py-2 text-sm font-semibold text-muted">
         <Icon name="Gauge" className="h-4 w-4" />
         No score change
       </div>
@@ -75,8 +75,8 @@ function ScoreDelta({ change }: { change: number }) {
       className={cn(
         "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold ring-1",
         positive
-          ? "bg-justified/15 text-justified ring-justified/30"
-          : "bg-danger/15 text-danger ring-danger/30",
+          ? "bg-tertiary-fixed/50 text-tertiary ring-tertiary/30"
+          : "bg-error-container/70 text-error ring-error/30",
       )}
     >
       <Icon name={positive ? "TrendingUp" : "TrendingDown"} className="h-4 w-4" />
