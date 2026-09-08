@@ -30,7 +30,10 @@ The current release is **Demo v1**, with a deterministic local-first flow:
 - Animated manoeuvre, analysis, verdict, and shared-road-intelligence overlays.
 - Transparent Vouch Score breakdown with contextual score changes.
 - Ride history with expandable signal explanations.
-- Shared hazard map with MapLibre and a reliable schematic fallback.
+- Shared hazard map on a custom OpenFreeMap basemap (MapLibre) with a
+  reliable schematic fallback.
+- Ride route that follows the real Anna Salai (Mount Road) alignment from
+  Saidapet to Gemini Junction, ~7.3 km of OSM-derived geometry.
 - Local seeded repository that works without credentials or network access.
 - Optional Supabase repository with rider, trip, event, report, and realtime data.
 - Keyboard-accessible scenario, hazard, map, and overlay interactions.
@@ -168,7 +171,6 @@ To deploy manually through GitHub:
 - Server-side transactional aggregation/RPC for high-concurrency reports.
 - Production migrations that preserve existing data instead of resetting demo tables.
 - Full component, accessibility, and multi-browser test matrix.
-- Code-splitting MapLibre and further bundle optimization.
 
 The ML training path is documented separately in `ml/README.md`. The mock
 provider remains the reliable presentation path until real perception is ready.
@@ -176,7 +178,9 @@ provider remains the reliable presentation path until real perception is ready.
 ## Privacy And Safety Notes
 
 - The demo stores camera detection metadata, never camera frames.
-- Coordinates and rider records are synthetic Chennai demo data.
+- Coordinates and rider records are synthetic Chennai demo data. The road
+  geometry is derived from OpenStreetMap data (© OpenStreetMap contributors,
+  served via OpenFreeMap); seeded riders and hazards are fictional.
 - The Vouch Score is a concept demonstration, not an insurance, legal, credit,
   or official safety score.
 - Do not place a Supabase `service_role` key in frontend environment variables.
