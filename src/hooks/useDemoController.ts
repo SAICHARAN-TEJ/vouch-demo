@@ -76,7 +76,7 @@ export function useDemoController() {
         });
 
         const riderEvent: RiderEvent = {
-          id: `rider-event-${Date.now()}`,
+          id: `rider-event-${scenario.id}-${Date.now()}`,
           tripId: DEMO_TRIP_ID,
           riderId: DEMO_RIDER.id,
           eventType: result.eventType,

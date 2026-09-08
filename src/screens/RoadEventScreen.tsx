@@ -3,6 +3,7 @@ import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { SchematicMap } from "@/components/map/SchematicMap";
 import { ScrollReveal } from "@/components/motion";
 import { RoadEventCard } from "@/components/road/RoadEventCard";
+import { SkeletonCard } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { useRoadEvents } from "@/hooks/queries";
@@ -14,10 +15,11 @@ import { ROAD_EVENT_LABEL } from "@/config/labels";
  * Duration: 480ms  Easing: entrance
  * Properties: transform + opacity only
  * Stagger: 35ms steps across detail rows
- * Reduced motion: global collapse renders final state instantly.
+ * Reduced motion: global collapse renders the final state instantly.
  *
- * Light system per spec §4: the SchematicMap paints the light basemap; chips
- * on surface-container-lowest with soft shadows replace the dark seated HUD.
+ * Reads like evidence: EVENT → LOCATION → SIGNAL → CONTEXT → VERDICT. The
+ * conclusion block ("Your movement was a response to the road") is the
+ * emotional close of the screen — the whole product idea in one sentence.
  */
 export function RoadEventScreen() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +44,9 @@ export function RoadEventScreen() {
     return (
       <div className="flex flex-col">
         <ScreenHeader title="Hazard" back />
-        <p className="p-4 text-sm text-muted">Loading…</p>
+        <div className="flex flex-col gap-3 p-4">
+          <SkeletonCard />
+        </div>
       </div>
     );
   }
@@ -66,21 +70,25 @@ export function RoadEventScreen() {
 
             <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-3">
               <div className="rounded-lg bg-surface-container-lowest px-2.5 py-2 shadow-raised">
-                <p className="eyebrow text-primary">Event field</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
+                  Chennai sector
+                </p>
                 <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-content">
                   <Icon name="Radar" className="h-3.5 w-3.5 text-primary" />
                   Shared hazard signal
                 </p>
               </div>
               <div className="rounded-lg bg-surface-container-lowest px-2.5 py-2 text-right shadow-raised">
-                <p className="eyebrow">Confidence</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+                  Confidence
+                </p>
                 <p className="tnum mt-0.5 font-display text-xl font-bold leading-none text-primary">
                   {Math.round(event.confidence * 100)}%
                 </p>
               </div>
             </div>
 
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-outline-variant/50 bg-surface-container-lowest/95 px-3 py-2.5 backdrop-blur-md">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-outline-variant/50 bg-surface-container-lowest/95 px-3 py-2.5">
               <div className="flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
                 <span>Location lock</span>
                 <span className="tnum text-content">{event.latitude.toFixed(4)}, {event.longitude.toFixed(4)}</span>
@@ -97,7 +105,6 @@ export function RoadEventScreen() {
           <ScrollReveal revealId={`road-event-evidence-heading-${event.id}`} delay={110} distance={8}>
             <div className="mb-2 flex items-end justify-between gap-3 border-b border-outline-variant/50 pb-3">
               <div>
-                <p className="eyebrow text-primary">Signal archive</p>
                 <h2 id="event-evidence-heading" className="mt-1 font-display text-lg font-bold text-content">
                   Event evidence
                 </h2>
@@ -121,13 +128,6 @@ export function RoadEventScreen() {
             </ScrollReveal>
             <ScrollReveal revealId={`road-event-reports-${event.id}`} delay={245} distance={8}>
               <DetailRow icon="Activity" label="Total reports" value={String(event.reports)} />
-            </ScrollReveal>
-            <ScrollReveal revealId={`road-event-location-${event.id}`} delay={280} distance={8}>
-              <DetailRow
-                icon="MapPin"
-                label="Location"
-                value={`${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`}
-              />
             </ScrollReveal>
           </Card>
         </section>

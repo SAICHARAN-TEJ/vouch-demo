@@ -4,6 +4,12 @@ import { cn } from "@/lib/cn";
 /**
  * Full-bleed overlay container for the hero flow. Renders absolutely within the
  * ride screen (not the viewport) so it stays inside the phone frame on desktop.
+ *
+ * The scrim is a solid translucent wash — no backdrop blur (six stacked blur
+ * layers during a live demo sequence is a frame-drop on mid-range Androids,
+ * and blur over a schematic map reads as a template effect, not a product).
+ * The footer pads by the bottom safe-area inset so the primary action never
+ * sits under the home indicator.
  */
 export function OverlayShell({
   children,
@@ -21,7 +27,7 @@ export function OverlayShell({
 }) {
   return (
     <div className="absolute inset-0 z-30 flex animate-fade-in flex-col">
-      <div className={cn("absolute inset-0 bg-inverse-surface/60 backdrop-blur-sm", scrimClassName)} />
+      <div className={cn("absolute inset-0 bg-inverse-surface/60", scrimClassName)} />
       <div
         onClick={onSkip}
         onKeyDown={(event) => {
@@ -42,7 +48,11 @@ export function OverlayShell({
       >
         {children}
       </div>
-      {footer && <div className="relative z-10 p-5 pt-0">{footer}</div>}
+      {footer && (
+        <div className="relative z-10 p-5 pt-0 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)))]">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }

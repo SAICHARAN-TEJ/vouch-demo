@@ -10,26 +10,15 @@ import { useRider, useRoadEvents, useHistory, useTodayDistance } from "@/hooks/q
 import { useScoreStore } from "@/store/scoreStore";
 import { useRideStore } from "@/store/rideStore";
 import { DEMO_TODAY_DISTANCE_KM } from "@/config/demoData";
-import {
-  AnimatedCard,
-  AnimatedNumber,
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/motion";
-
-function trustLabel(score: number): string {
-  if (score >= 85) return "Trusted rider";
-  if (score >= 70) return "Building trust";
-  return "New rider";
-}
+import { trustLabel } from "@/lib/ui";
+import { AnimatedNumber } from "@/components/motion";
 
 /**
- * Animation: home-orchestrated-entrance
+ * Animation: home-entrance
  * Trigger: mount / route arrival
- * Duration: 480ms per item  Easing: entrance
- * Properties: transform + opacity only
- * Stagger: 80ms via StaggerContainer; StatTile grid 80ms; shared-map card
- *   enters with the cascade
+ * Duration: 480ms single-pass  Easing: entrance
+ * Properties: transform + opacity only — the page rises once as one block
+ *   (PageTransition); no per-card cascade, which reads as a template.
  * Reduced motion: global collapse; every state renders instantly.
  *
  * Light system per spec §4 Home recipe: identity row with greeting + status
@@ -75,15 +64,15 @@ export function Home() {
         </div>
       )}
 
-      {/* Greeting + status dot */}
+      {/* Greeting + status */}
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-body-sm text-muted">Welcome back,</p>
           <h1 className="text-headline-lg-mobile font-bold text-content">{rider?.name ?? "Rider"}</h1>
         </div>
         <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-tertiary-fixed-dim/25 px-2.5 py-1 text-label-sm font-medium text-tertiary">
-          <span className="h-2 w-2 rounded-full bg-tertiary animate-breathe" />
-          Ready
+          <span className="h-2 w-2 rounded-full bg-tertiary" />
+          Ready to ride
         </span>
       </div>
 
@@ -107,7 +96,7 @@ export function Home() {
           </p>
           <button
             onClick={() => navigate("/score")}
-            className="-ml-3 -my-3 mt-0 inline-flex items-center gap-1 rounded-lg px-3 py-3.5 text-xs font-semibold text-primary transition hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+            className="tap-expand mt-2 inline-flex items-center gap-1 rounded-lg px-3 py-2 -ml-3 text-xs font-semibold text-primary transition hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
           >
             View breakdown
             <Icon name="ChevronRight" className="h-3.5 w-3.5" />
@@ -122,7 +111,7 @@ export function Home() {
           Start Live Ride
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-on-primary/10 px-2.5 py-1 text-label-sm font-medium">
-          <span className="h-2 w-2 rounded-full bg-tertiary-fixed animate-breathe" />
+          <span className="h-2 w-2 rounded-full bg-tertiary-fixed" />
           Live Radar
         </span>
       </Button>
@@ -130,59 +119,45 @@ export function Home() {
       {/* Today stats */}
       <div>
         <h2 className="mb-2 text-sm font-bold text-content">Today</h2>
-        <StaggerContainer className="grid grid-cols-3 gap-2.5" delay={80}>
-          <StaggerItem>
-            <StatTile
-              icon="Route"
-              value={todayDistance}
-              label="Distance"
-              sub="km"
-              className="h-full"
-            />
-          </StaggerItem>
-          <StaggerItem>
-            <StatTile
-              icon="Activity"
-              value={history.length}
-              label="Road events"
-              accent="text-secondary"
-              className="h-full"
-            />
-          </StaggerItem>
-          <StaggerItem>
-            <StatTile
-              icon="ShieldCheck"
-              value={verifiedHazards}
-              label="Verified"
-              sub="hazards"
-              accent="text-tertiary"
-              className="h-full"
-            />
-          </StaggerItem>
-        </StaggerContainer>
+        <div className="grid grid-cols-3 gap-2.5">
+          <StatTile icon="Route" value={todayDistance} label="Distance" sub="km" className="h-full" />
+          <StatTile
+            icon="Activity"
+            value={history.length}
+            label="Road events"
+            accent="text-secondary"
+            className="h-full"
+          />
+          <StatTile
+            icon="ShieldCheck"
+            value={verifiedHazards}
+            label="Verified"
+            sub="hazards"
+            accent="text-tertiary"
+            className="h-full"
+          />
+        </div>
       </div>
 
       {/* Shared intelligence teaser */}
-      <AnimatedCard interactive noEntrance className="p-0">
-        <Card padded={false} className="overflow-hidden border-0 bg-transparent shadow-none">
-          <button
-            type="button"
-            onClick={() => navigate("/map")}
-            className="flex min-h-[76px] w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-container/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-          >
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container text-primary">
-              <Icon name="Map" className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-content">Shared road map</div>
-              <p className="text-xs text-muted">
-                {roadEvents.length} hazards reported by riders nearby
-              </p>
-            </div>
-            <Icon name="ChevronRight" className="h-5 w-5 text-muted" />
-          </button>
-        </Card>
-      </AnimatedCard>
+      <Card padded={false} className="overflow-hidden">
+        <button
+          type="button"
+          onClick={() => navigate("/map")}
+          className="flex min-h-[76px] w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-container/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        >
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container text-primary">
+            <Icon name="Map" className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-semibold text-content">Shared road map</div>
+            <p className="text-xs text-muted">
+              {roadEvents.length} hazards reported by riders nearby
+            </p>
+          </div>
+          <Icon name="ChevronRight" className="h-5 w-5 text-muted" />
+        </button>
+      </Card>
     </div>
   );
 }

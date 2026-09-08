@@ -10,7 +10,7 @@ import { cn } from "@/lib/cn";
  * MapLibre can't initialise (PRD §49).
  *
  * Light basemap per spec §4 Road Map: #f0f3ff base, #dee8ff arterial casing
- * with a white core, soft greenspace blobs, route casing #0f5257 under a
+ * with a white core, route casing #0f5257 under a
  * dashed #003a3e line, and the reference marker grammar: the featured hazard
  * (explicit highlightId, else highest confidence) gets a label chip + stem +
  * dot stack; other hazards render as tonal dots with white rims.
@@ -125,11 +125,6 @@ export function SchematicMap({
       {/* Base canvas */}
       <rect width={W} height={H} fill="#f0f3ff" />
       <rect width={W} height={H} fill={`url(#${gridId})`} />
-
-      {/* Greenspace blobs — soft tonal texture per spec */}
-      <ellipse cx="60" cy="70" rx="52" ry="30" fill="#d8e3fb" opacity="0.5" />
-      <ellipse cx="262" cy="360" rx="60" ry="38" fill="#d8e3fb" opacity="0.45" />
-      <ellipse cx="250" cy="90" rx="34" ry="22" fill="#d8e3fb" opacity="0.4" />
 
       {/* Arterial roads: #dee8ff casing + white core */}
       <path

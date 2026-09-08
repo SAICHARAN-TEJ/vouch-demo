@@ -12,11 +12,12 @@ import { cn } from "@/lib/cn";
  * Stagger: n/a
  * Reduced motion: colour-only feedback.
  *
- * Fixed screen chrome per spec §3: an in-app status strip (mono time +
- * network/wifi/battery glyphs) over an h-16 brand row. The row carries the
- * logo + screen name on the left and the status slot on the right. This
- * header owns the screen's `<h1>` — e2e asserts every screen heading, so
- * the title must stay a real heading element, not decorative chrome text.
+ * Slim screen chrome: brand row with logo + screen name on the left and the
+ * status slot on the right. The old in-app "status bar" strip (fake clock +
+ * signal glyphs) was removed — a real handset already draws its own status
+ * bar, and a static one reads as a mockup. This header owns the screen's
+ * `<h1>` — e2e asserts every screen heading, so the title must stay a real
+ * heading element.
  */
 export function ScreenHeader({
   title,
@@ -41,7 +42,7 @@ export function ScreenHeader({
       className={cn(
         "sticky top-0 z-20",
         // gutter-tight (16px) matches the screens' p-4 content line.
-        "bg-surface/90 px-gutter-tight pb-2.5 backdrop-blur-xl",
+        "bg-surface-container-lowest/95 px-gutter-tight py-2.5 backdrop-blur-md",
         // Safe-area aware: on a notched handset the sticky header is what sits
         // under the cutout, so it absorbs the inset rather than every screen.
         "pt-[max(0.75rem,env(safe-area-inset-top))]",
@@ -49,23 +50,7 @@ export function ScreenHeader({
       )}
       style={{ boxShadow: "0 1px 8px rgb(0 0 0 / 0.04)" }}
     >
-      {/* Row 1 — in-app status strip: mono clock + connectivity glyphs. */}
-      <div
-        className="flex h-7 items-center justify-between text-on-surface-variant"
-        aria-hidden="true"
-      >
-        <span className="font-mono text-label-sm font-medium tracking-[0.04em]">
-          12:45
-        </span>
-        <span className="flex items-center gap-1.5">
-          <Icon name="Signal" className="h-4 w-4" strokeWidth={2} />
-          <Icon name="Wifi" className="h-4 w-4" strokeWidth={2} />
-          <Icon name="BatteryFull" className="h-4 w-4" strokeWidth={2} />
-        </span>
-      </div>
-
-      {/* Row 2 — brand row. Back key sits in place of the logo when used. */}
-      <div className="flex min-h-16 items-center gap-3">
+      <div className="flex min-h-14 items-center gap-3">
         {back ? (
           <button
             onClick={handleBack}
@@ -80,10 +65,6 @@ export function ScreenHeader({
             <Icon name="ArrowLeft" className="h-5 w-5" />
           </button>
         ) : (
-          // Inline spec §2 mark — no network fetch, so it renders correctly
-          // under any deployment base (GitHub Pages serves under /vouch-demo/).
-          // Brand's rx-28 on a 120 viewBox ≈ 7.5px at 32px — visually
-          // equivalent to the old rounded-lg (8px) chip edge.
           <Brand size={32} showText={false} className="h-8 w-8 shrink-0" />
         )}
         <div className="min-w-0 flex-1">

@@ -1,17 +1,11 @@
 import { cn } from "@/lib/cn";
 
 /**
- * Animation: brand-arrive
- * Trigger: mount
- * Duration: 480ms mark, 480ms wordmark at +90ms  Easing: entrance
- * Properties: transform + opacity
- * Stagger: 90ms — the shield lands, then the word
- * Reduced motion: both fade in place via the global duration collapse.
- *
  * Vouch wordmark + mark. `size` scales the mark; wordmark optional.
  * The mark is the spec §2 logo: deep-teal #0f5257 rounded square, white
- * check, cyan accent dot — rendered inline so it inherits none of the old
- * glow filters.
+ * check, cyan accent dot — rendered inline, static, no entrance animation.
+ * A logo that re-animates every time its screen mounts reads as a template,
+ * not a product.
  */
 export function Brand({
   size = 28,
@@ -31,7 +25,7 @@ export function Brand({
         height={size}
         role="img"
         aria-label="Vouch"
-        className="animate-scale-in shrink-0"
+        className="shrink-0"
       >
         <rect width="120" height="120" rx="28" fill="#0f5257" />
         <path
@@ -47,10 +41,7 @@ export function Brand({
       {showText && (
         // Display face with negative tracking: the wordmark should read as a
         // mark, not as body copy that happened to be bold.
-        <span
-          className="animate-fade-up font-display text-lg font-extrabold tracking-[-0.02em] text-content"
-          style={{ animationDelay: "90ms" }}
-        >
+        <span className="font-display text-lg font-extrabold tracking-[-0.02em] text-content">
           Vouch
         </span>
       )}

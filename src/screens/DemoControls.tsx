@@ -3,15 +3,15 @@ import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { SourceBadge } from "@/components/ui/SourceBadge";
-import { SCENARIO_LIST, type ScenarioDef } from "@/config/scenarios";
+import { SCENARIOS, SCENARIO_LIST, type ScenarioDef } from "@/config/scenarios";
 import { useDemoController } from "@/hooks/useDemoController";
 import { cn } from "@/lib/cn";
 
 /**
- * Light system per spec §4: scenario cards on white surfaces with tonal icon
- * tiles; the hero scenario gets the primary emphasis ring. All functionality,
- * labels and keyboard access unchanged (e2e asserts "Pothole + Vehicle",
- * "Reset demo", "Demo Controls").
+ * Operator surface — grouped scenarios with the hero path first, a stronger
+ * hero emphasis (primary tonal fill instead of a hairline ring), and the
+ * reset as a distinct quiet action. The whole panel shares the Vouch visual
+ * system but reads as a control room, not a rider screen.
  */
 export function DemoControls() {
   const navigate = useNavigate();
@@ -24,6 +24,16 @@ export function DemoControls() {
   const doReset = async () => {
     if (await reset()) navigate("/home");
   };
+
+  const hero = SCENARIOS.pothole_vehicle;
+  const heroLabel = hero.label;
+
+  const contextScenarios = SCENARIO_LIST.filter(
+    (s) => !s.isHero && s.tone !== "caution" && s.id !== "normal",
+  );
+  const ambiguousScenarios = SCENARIO_LIST.filter(
+    (s) => s.tone === "caution" || s.id === "normal",
+  );
 
   return (
     <div className="flex flex-col">
@@ -51,40 +61,59 @@ export function DemoControls() {
           </div>
         )}
 
-        <div className="space-y-2.5">
-          {SCENARIO_LIST.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => void run(s)}
-              disabled={isBusy}
-              className={cn(
-                "card flex w-full items-center gap-3 p-3.5 text-left transition hover:bg-surface-container-low/40 disabled:cursor-wait disabled:opacity-60",
-                s.isHero && "ring-1 ring-primary/40",
-              )}
-            >
-              <div
-                className={cn(
-                  "grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container",
-                  s.tone === "caution" ? "text-secondary" : "text-primary",
-                )}
-              >
-                <Icon name={s.icon} className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-content">{s.label}</h3>
-                  {s.isHero && (
-                    <span className="rounded-sm bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
-                      Hero
-                    </span>
-                  )}
-                </div>
-                <p className="mt-0.5 text-xs leading-snug text-muted">{s.description}</p>
-              </div>
-              <Icon name="Play" className="h-4 w-4 shrink-0 text-muted" />
-            </button>
-          ))}
-        </div>
+        {/* Hero scenario — the full pothole + vehicle sequence */}
+        <section aria-label="Hero scenario">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
+              Full sequence
+            </p>
+            <span className="text-[11px] text-muted">recommended</span>
+          </div>
+          <button
+            onClick={() => void run(hero)}
+            disabled={isBusy}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl bg-primary-container p-4 text-left text-on-primary shadow-raised",
+              "transition active:scale-[0.99] disabled:cursor-wait disabled:opacity-60",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+            )}
+          >
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-on-primary/10">
+              <Icon name={hero.icon} className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-bold">{heroLabel}</div>
+              <p className="mt-0.5 text-xs leading-snug text-on-primary/80">
+                {hero.description}
+              </p>
+            </div>
+            <Icon name="Play" className="h-5 w-5 shrink-0" />
+          </button>
+        </section>
+
+        {/* Isolated context scenarios */}
+        <section aria-label="Context scenarios">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            Single-signal scenarios
+          </p>
+          <div className="space-y-2.5">
+            {contextScenarios.map((s) => (
+              <ScenarioRow key={s.id} scenario={s} disabled={isBusy} onRun={run} />
+            ))}
+          </div>
+        </section>
+
+        {/* Ambiguous scenarios */}
+        <section aria-label="Ambiguous scenarios">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            Edge cases
+          </p>
+          <div className="space-y-2.5">
+            {ambiguousScenarios.map((s) => (
+              <ScenarioRow key={s.id} scenario={s} disabled={isBusy} onRun={run} />
+            ))}
+          </div>
+        </section>
 
         <Button variant="outline" block onClick={doReset} disabled={isBusy}>
           <Icon name="RotateCcw" className="h-4 w-4" />
@@ -92,5 +121,40 @@ export function DemoControls() {
         </Button>
       </div>
     </div>
+  );
+}
+
+function ScenarioRow({
+  scenario,
+  disabled,
+  onRun,
+}: {
+  scenario: ScenarioDef;
+  disabled: boolean;
+  onRun: (scenario: ScenarioDef) => Promise<void>;
+}) {
+  return (
+    <button
+      onClick={() => void onRun(scenario)}
+      disabled={disabled}
+      className={cn(
+        "card flex w-full items-center gap-3 p-3.5 text-left transition hover:bg-surface-container-low/40 disabled:cursor-wait disabled:opacity-60",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+      )}
+    >
+      <div
+        className={cn(
+          "grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-container",
+          scenario.tone === "caution" ? "text-secondary" : "text-primary",
+        )}
+      >
+        <Icon name={scenario.icon} className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="font-semibold text-content">{scenario.label}</div>
+        <p className="mt-0.5 text-xs leading-snug text-muted">{scenario.description}</p>
+      </div>
+      <Icon name="Play" className="h-4 w-4 shrink-0 text-muted" />
+    </button>
   );
 }

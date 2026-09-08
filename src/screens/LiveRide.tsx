@@ -60,10 +60,10 @@ export function LiveRide() {
         highlightId={highlightId}
         className="absolute inset-0"
       />
-      {/* Soft tonal washes at the very edges so the floating HUD/DemoBar
-          chrome stays legible over the light map. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-surface-container-low/85 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-surface-container-low/70 to-transparent" />
+      {/* Soft tonal washes ONLY under the floating chrome rows, not the whole
+          map. The HUD occupies ~top 180px; the DemoBar ~bottom 96px. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-surface-container-low/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-surface-container-low/80 to-transparent" />
 
       <RideHud onExit={() => void exit()} />
       {tripError && (

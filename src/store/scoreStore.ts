@@ -26,11 +26,12 @@ export const useScoreStore = create<ScoreState>((set) => ({
   lastChangedFactor: null,
 
   hydrate: (rider) =>
+    // Deliberately preserves lastChange/lastChangedFactor: hydrate re-runs on
+    // every rider refetch, and resetting the transient "+N last ride" callout
+    // here made the score chip vanish seconds after a manoeuvre.
     set({
       factors: rider.scoreFactors.map((factor) => ({ ...factor })),
       score: rider.vouchScore,
-      lastChange: 0,
-      lastChangedFactor: null,
     }),
 
   applyEvent: (result) => {

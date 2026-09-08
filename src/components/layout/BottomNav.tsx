@@ -75,7 +75,14 @@ export function BottomNav() {
                 >
                   <Icon name={it.icon} className="h-6 w-6" strokeWidth={2.25} />
                 </span>
-                <span className="mt-0.5 text-[11px] font-semibold text-primary-container">
+                <span
+                  className={cn(
+                    "mt-0.5 text-[11px] tracking-[0.01em] transition-colors duration-micro",
+                    isActive
+                      ? "font-bold text-primary-container"
+                      : "font-medium text-on-surface-variant group-hover:text-on-surface",
+                  )}
+                >
                   {it.label}
                 </span>
               </>

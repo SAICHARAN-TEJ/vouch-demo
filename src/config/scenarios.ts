@@ -14,7 +14,6 @@ import type {
   MotionData,
 } from "@/types";
 import {
-  DEMO_ROUTE,
   HERO_POTHOLE_ID,
   HERO_RIDER_LOCATION,
 } from "./demoData";
@@ -57,8 +56,8 @@ export interface ScenarioDef {
   effect: ScenarioEffect;
 }
 
-/** A location with no seeded hazard within the engine's nearby threshold. */
-const CLEAR_LOCATION: GeoPoint = DEMO_ROUTE[1];
+/** A spot on the route with no seeded hazard within the engine's nearby threshold. */
+const CLEAR_LOCATION: GeoPoint = { latitude: 13.026943, longitude: 80.233572 };
 
 export const SCENARIOS: Record<ScenarioId, ScenarioDef> = {
   normal: {
@@ -74,7 +73,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioDef> = {
       motion: { lateralG: 0.05, longitudinalG: -0.03, gyroZ: 3, speed: 31 },
     },
     camera: null,
-    location: DEMO_ROUTE[5],
+    location: { latitude: 13.055102, longitude: 80.25466 },
     effect: {},
   },
 

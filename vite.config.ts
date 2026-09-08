@@ -19,6 +19,20 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split heavy vendors so mobile fetches stream in parallel instead of
+        // one ~800 kB blob: maplibre only downloads when the Map screen loads.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          query: ["@tanstack/react-query"],
+          motion: ["framer-motion"],
+          maplibre: ["maplibre-gl"],
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: "node",

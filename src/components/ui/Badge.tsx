@@ -18,7 +18,9 @@ const TONES: Record<BadgeTone, string> = {
   primary: "bg-primary/10 text-primary ring-primary/25",
   justified: "bg-tertiary-fixed/40 text-tertiary ring-tertiary/30",
   caution: "bg-secondary-fixed/45 text-secondary ring-secondary/30",
-  danger: "bg-error-container/60 text-error-container ring-error/25",
+  // text-error, not text-on-error-container: the error-container wash and its
+  // "on" ink are near-identical pinks, which made danger badges unreadable.
+  danger: "bg-error-container/60 text-error ring-error/30",
   info: "bg-primary/10 text-info ring-info/30",
 };
 

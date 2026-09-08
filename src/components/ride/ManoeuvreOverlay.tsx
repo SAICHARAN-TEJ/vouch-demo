@@ -20,11 +20,13 @@ export function ManoeuvreOverlay({
   return (
     <OverlayShell onSkip={onAdvance} className="items-center justify-center text-center">
       <div className="flex flex-col items-center">
-        {/* Pulsing detection ring — solid concentric rings, no blur halos */}
+        {/* Detection ring — solid concentric rings. One quiet scale-in on
+            entrance; no looping pulse (a permanently shimmering detection
+            ring reads as a concept video, not a product). */}
         <div className="relative mb-8 grid h-32 w-32 place-items-center">
-          <span className="absolute inset-0 rounded-full bg-secondary-fixed/40 animate-pulse-ring" />
-          <span className="absolute inset-3 rounded-full bg-secondary-fixed/60 animate-pulse-ring [animation-delay:200ms]" />
-          <span className="relative grid h-20 w-20 place-items-center rounded-full bg-secondary-fixed text-secondary ring-1 ring-secondary/40">
+          <span className="absolute inset-0 rounded-full bg-secondary-fixed/40" />
+          <span className="absolute inset-3 rounded-full bg-secondary-fixed/60" />
+          <span className="relative grid h-20 w-20 place-items-center rounded-full bg-secondary-fixed text-secondary ring-1 ring-secondary/40 animate-scale-in">
             <Icon name="MoveHorizontal" className="h-9 w-9" strokeWidth={2.25} />
           </span>
         </div>

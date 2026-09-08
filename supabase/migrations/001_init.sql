@@ -92,28 +92,28 @@ insert into trips (id, rider_id, start_time, end_time, distance, score_change) v
 insert into road_events
   (id, type, latitude, longitude, confidence, status, reports, riders, first_detected, last_confirmed, created_at, updated_at)
 values
-  ('road-pothole-hero',    'pothole',       13.0700, 80.2498, 0.88, 'confirmed', 7, 6, '09:42', '10:18', '2026-09-03T04:12:00Z', '2026-09-03T04:48:00Z'),
-  ('road-speedbreaker-1',  'speed_breaker', 13.0602, 80.2422, 0.84, 'confirmed', 5, 4, '08:55', '10:02', '2026-09-03T03:25:00Z', '2026-09-03T04:32:00Z'),
-  ('road-waterlogging-1',  'waterlogging',  13.0655, 80.2450, 0.76, 'probable',  3, 3, '09:10', '09:58', '2026-09-03T03:40:00Z', '2026-09-03T04:28:00Z'),
-  ('road-debris-1',        'debris',        13.0800, 80.2568, 0.69, 'possible',  2, 2, '09:33', '09:47', '2026-09-03T04:03:00Z', '2026-09-03T04:17:00Z');
+  ('road-pothole-hero',    'pothole',       13.0475, 80.2488, 0.88, 'confirmed', 7, 6, '09:42', '10:18', '2026-09-03T04:12:00Z', '2026-09-03T04:48:00Z'),
+  ('road-speedbreaker-1',  'speed_breaker', 13.0282, 80.2358, 0.84, 'confirmed', 5, 4, '08:55', '10:02', '2026-09-03T03:25:00Z', '2026-09-03T04:32:00Z'),
+  ('road-waterlogging-1',  'waterlogging',  13.0338, 80.2441, 0.76, 'probable',  3, 3, '09:10', '09:58', '2026-09-03T03:40:00Z', '2026-09-03T04:28:00Z'),
+  ('road-debris-1',        'debris',        13.0566, 80.2552, 0.69, 'possible',  2, 2, '09:33', '09:47', '2026-09-03T04:03:00Z', '2026-09-03T04:17:00Z');
 
 insert into rider_events
   (id, trip_id, rider_id, event_type, latitude, longitude, motion_data, context_result, confidence, created_at)
 values
   (
-    'rider-event-seed-1', 'trip-earlier-1', 'rider-demo-1', 'lateral_manoeuvre', 13.0602, 80.2420,
+    'rider-event-seed-1', 'trip-earlier-1', 'rider-demo-1', 'lateral_manoeuvre', 13.0474, 80.2487,
     '{"lateralG":0.42,"longitudinalG":-0.05,"gyroZ":28,"speed":34,"timestamp":0}',
     '{"eventType":"lateral_manoeuvre","context":["pothole_detected"],"confidence":0.9,"verdict":"likely_justified","explanation":"Lateral movement coincided with a nearby pothole on the road.","signals":{"motion":true,"roadContext":true,"rearApproach":false},"nearbyEvent":null,"cameraDetection":null,"hazardDistanceM":9}',
     0.9, '2026-09-03T04:12:00Z'
   ),
   (
-    'rider-event-seed-2', 'trip-earlier-1', 'rider-demo-1', 'hard_braking', 13.0655, 80.2455,
+    'rider-event-seed-2', 'trip-earlier-1', 'rider-demo-1', 'hard_braking', 13.0372, 80.2464,
     '{"lateralG":0.06,"longitudinalG":-0.58,"gyroZ":4,"speed":41,"timestamp":0}',
     '{"eventType":"hard_braking","context":["obstacle_detected"],"confidence":0.82,"verdict":"likely_justified","explanation":"Hard braking coincided with an obstacle detected ahead.","signals":{"motion":true,"roadContext":false,"rearApproach":true},"nearbyEvent":null,"cameraDetection":null,"hazardDistanceM":null}',
     0.86, '2026-09-03T02:47:00Z'
   ),
   (
-    'rider-event-seed-3', 'trip-earlier-1', 'rider-demo-1', 'lateral_manoeuvre', 13.0545, 80.2385,
+    'rider-event-seed-3', 'trip-earlier-1', 'rider-demo-1', 'lateral_manoeuvre', 13.0255, 80.2301,
     '{"lateralG":0.38,"longitudinalG":-0.02,"gyroZ":22,"speed":29,"timestamp":0}',
     '{"eventType":"lateral_manoeuvre","context":[],"confidence":0.4,"verdict":"context_unclear","explanation":"Lateral movement detected with no supporting road or surrounding context.","signals":{"motion":true,"roadContext":false,"rearApproach":false},"nearbyEvent":null,"cameraDetection":null,"hazardDistanceM":null}',
     0.71, '2026-09-03T02:21:00Z'

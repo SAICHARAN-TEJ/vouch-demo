@@ -11,8 +11,9 @@ import { cn } from "@/lib/cn";
  * the other five scenarios (PRD §18) are tucked behind "More" so the primary
  * demo path stays front-and-centre. Only active while actually riding.
  *
- * Light system per spec §4: hero = primary-container fill, controls on white
- * glass panels. All labels, keyboard access and busy states unchanged.
+ * Solid surfaces, no backdrop blur. The bar pads by the bottom safe-area
+ * inset so no control ever sits under the iPhone home indicator. All labels,
+ * keyboard access and busy states unchanged (e2e asserts them).
  */
 export function DemoBar() {
   const navigate = useNavigate();
@@ -35,14 +36,18 @@ export function DemoBar() {
   };
 
   return (
-    <div className="absolute inset-x-0 bottom-0 z-10 p-4">
+    <div className="absolute inset-x-0 bottom-0 z-10 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
       {error && (
         <div role="alert" className="mb-3 rounded-xl bg-error-container/60 px-3 py-2 text-xs text-on-error-container">
           {error}
         </div>
       )}
       {open && (
-        <div className="mb-3 grid grid-cols-2 gap-2 animate-fade-up">
+        <div
+          role="group"
+          aria-label="More scenarios"
+          className="mb-3 grid grid-cols-2 gap-2 animate-fade-up"
+        >
           {others.map((s) => (
             <button
               key={s.id}
@@ -86,9 +91,10 @@ export function DemoBar() {
         <button
           onClick={() => setOpen((v) => !v)}
           disabled={isBusy}
+          aria-expanded={open}
           aria-label="More scenarios"
           className={cn(
-            "grid h-14 w-14 shrink-0 place-items-center rounded-xl glass text-content transition active:scale-[0.98]",
+            "grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-surface-container-lowest/95 text-content shadow-raised transition active:scale-[0.98]",
             open && "bg-surface-container",
           )}
         >
@@ -99,7 +105,7 @@ export function DemoBar() {
           onClick={() => void doReset()}
           disabled={isBusy}
           aria-label="Reset demo"
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-xl glass text-muted transition hover:text-content active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
+          className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-surface-container-lowest/95 text-muted shadow-raised transition hover:text-content active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
         >
           <Icon name="RotateCcw" className="h-5 w-5" />
         </button>

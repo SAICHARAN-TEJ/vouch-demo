@@ -4,14 +4,9 @@ import { Icon } from "@/components/ui/Icon";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { useScoreStore } from "@/store/scoreStore";
 import { BASE_SCORE } from "@/engine/scoreEngine";
+import { trustLabel } from "@/lib/ui";
 import { cn } from "@/lib/cn";
 import { AnimatedNumber, ScrollReveal } from "@/components/motion";
-
-function trustLabel(score: number): string {
-  if (score >= 85) return "Trusted rider";
-  if (score >= 70) return "Building trust";
-  return "New rider";
-}
 
 /**
  * Animation: score-entrance
@@ -21,35 +16,46 @@ function trustLabel(score: number): string {
  * Stagger: 70–90ms across ledger rows
  * Reduced motion: global collapse renders the final state instantly.
  *
- * Light system per spec §4 Rider Score recipe: white score hero with the ONE
- * allowed soft decoration (primary-fixed blur disc), tertiary-fixed "Live
- * Guard" chip, tonal ledger rows on surface-container-low, h-2.5 primary
- * progress bars.
+ * Trust, not gamification: a big calm ring, a trend chip that answers "what
+ * changed and why", and a transparent ledger. The decorative blur disc is
+ * gone — precision reads as expensive, effects read as a template.
  */
 export function ScoreScreen() {
   const factors = useScoreStore((s) => s.factors);
   const score = useScoreStore((s) => s.score);
+  const lastChange = useScoreStore((s) => s.lastChange);
 
   return (
     <div className="flex flex-col">
       <ScreenHeader title="Vouch Score" subtitle="Contextual riding behaviour" />
 
       <div className="flex flex-col gap-6 p-4 pb-8">
-        {/* Score hero — the one soft decor: a primary-fixed blur disc. */}
-        <Card glow className="relative isolate flex flex-col items-center overflow-hidden py-7">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-fixed/40 blur-2xl"
-          />
-          <div className="relative z-10 mb-5 flex w-full items-center justify-between px-1">
+        {/* Score hero */}
+        <Card className="relative flex flex-col items-center py-7">
+          <div className="mb-5 flex w-full items-center justify-between px-1">
             <div>
-              <p className="eyebrow">Current signal</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+                Current signal
+              </p>
               <p className="mt-1 text-xs text-muted">Context-adjusted rider profile</p>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-tertiary-fixed px-2.5 py-1 text-label-sm font-semibold text-on-tertiary-fixed">
-              <span className="h-2 w-2 rounded-full bg-tertiary animate-breathe" />
-              Live Guard
-            </span>
+            {lastChange !== 0 && (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-label-sm font-bold",
+                  lastChange > 0
+                    ? "bg-tertiary-fixed/50 text-tertiary"
+                    : "bg-error-container/60 text-error",
+                )}
+              >
+                <Icon name={lastChange > 0 ? "TrendingUp" : "TrendingDown"} className="h-3.5 w-3.5" />
+                <span className="tnum">
+                  {lastChange > 0 ? "+" : ""}
+                  {lastChange}
+                </span>
+                <span className="font-medium">last ride</span>
+              </span>
+            )}
           </div>
           <div className="relative z-10">
             <ProgressRing value={score} size={180} stroke={13} label="Vouch Score out of 100">
@@ -73,8 +79,7 @@ export function ScoreScreen() {
         <div>
           <div className="mb-2 flex items-end justify-between gap-3">
             <div>
-              <p className="eyebrow">Signal ledger</p>
-              <h2 className="mt-1 text-sm font-bold text-content">How it's calculated</h2>
+              <h2 className="text-sm font-bold text-content">How it's calculated</h2>
             </div>
             <span className="text-[11px] text-muted">base + context</span>
           </div>

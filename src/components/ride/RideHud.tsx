@@ -5,83 +5,112 @@ import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { cn } from "@/lib/cn";
 
 /**
- * Animation: hud-pulse
- * Trigger: loops while the ride is live
- * Duration: 1s ping  Easing: default pulse curve
- * Properties: transform + opacity of a solid dot — no blur halo
- * Stagger: n/a
- * Reduced motion: the ping collapses; the solid dot remains.
+ * Animation: none by design.
+ * Telemetry updates every second via AnimatedNumber; any looping pulse or
+ * breathing on a live HUD fights the numbers for attention and costs
+ * battery. State is communicated by layout and colour, not motion.
  *
- * Live telemetry overlaid on the ride map: speed, distance, elapsed + status.
- * Light system per spec §4 Active Ride: white HUD panels (surface-container-
- * lowest) with soft shadows, tonal labels. The `.glass` chrome treatment is
- * retained for these floating panels.
+ * Live ride HUD — glanceable in a fraction of a second:
+ *   row 1: monitoring state + end-ride control
+ *   hero: SPEED — the one number a rider actually needs mid-ride
+ *   row 3: distance + elapsed, deliberately secondary
+ *
+ * Panels are solid surface-container-lowest at 95% — no backdrop blur (a
+ * blur layer under live-updating numbers is a guaranteed mobile jank
+ * source), no pill chrome. Safe-area top inset keeps the status pill off
+ * the notch on notched handsets.
  */
 export function RideHud({ onExit }: { onExit?: () => void }) {
   const speedKmh = useRideStore((s) => s.speedKmh);
   const distanceKm = useRideStore((s) => s.distanceKm);
   const elapsedS = useRideStore((s) => s.elapsedS);
+  const phase = useRideStore((s) => s.phase);
+  const live = phase === "riding";
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-10 p-4 sm:p-5">
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-10 p-4 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="flex items-start justify-between gap-3">
-        {/* Status pill */}
-        <div className="glass flex min-h-touch items-center gap-2 rounded-full px-3.5 py-1.5 shadow-raised">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70 motion-reduce:animate-none" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+        {/* Monitoring state pill */}
+        <div
+          className={cn(
+            "inline-flex min-h-touch items-center gap-2 rounded-full px-3.5 py-1.5 shadow-raised",
+            "bg-surface-container-lowest/95",
+          )}
+        >
+          <span
+            className={cn("h-2 w-2 rounded-full", live ? "bg-tertiary" : "bg-muted")}
+            aria-hidden="true"
+          />
+          <span className="text-xs font-semibold tracking-wide text-content">
+            {live ? "Monitoring" : "Paused"}
           </span>
-          <span className="text-xs font-semibold tracking-wide text-content">Vouch monitoring</span>
         </div>
 
         {onExit && (
           <button
             onClick={onExit}
             aria-label="End ride"
-            className="pointer-events-auto grid h-touch w-touch shrink-0 place-items-center rounded-xl glass text-muted transition-[color,background-color] duration-micro hover:bg-surface-container hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="pointer-events-auto grid h-touch w-touch shrink-0 place-items-center rounded-xl bg-surface-container-lowest/95 text-muted shadow-raised transition-[color,background-color] duration-micro hover:bg-surface-container hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <Icon name="X" className="h-5 w-5" />
           </button>
         )}
       </div>
 
-      {/* Telemetry cluster */}
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        <HudTile
-          value={<AnimatedNumber value={speedKmh} duration="fast" />}
-          unit="km/h"
-          accent
+      {/* Speed hero — the glanceable number */}
+      <div className="mt-3 inline-flex items-baseline gap-2 rounded-xl bg-surface-container-lowest/95 px-4 py-3 shadow-raised">
+        <span className="metric font-mono text-4xl font-bold leading-none text-primary">
+          <AnimatedNumber value={speedKmh} duration="fast" />
+        </span>
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+          km/h
+        </span>
+      </div>
+
+      {/* Secondary telemetry */}
+      <div className="mt-2 flex gap-2">
+        <SecondaryTile
+          value={<AnimatedNumber value={distanceKm} decimals={1} duration="fast" />}
+          unit="km"
+          label="Distance"
         />
-        <HudTile value={<AnimatedNumber value={distanceKm} decimals={1} duration="fast" />} unit="km" />
-        <HudTile
+        <SecondaryTile
           value={<AnimatedNumber value={elapsedS} duration="fast" format={formatElapsed} />}
-          unit="time"
+          unit=""
+          label="Time"
         />
       </div>
     </div>
   );
 }
 
-function HudTile({ value, unit, accent }: { value: ReactNode; unit: string; accent?: boolean }) {
+function SecondaryTile({
+  value,
+  unit,
+  label,
+}: {
+  value: ReactNode;
+  unit: string;
+  label: string;
+}) {
   return (
-    <div className="glass min-w-0 rounded-xl px-3 py-2.5 shadow-raised sm:px-3.5">
-      <div
-        className={cn(
-          "metric truncate text-xl font-extrabold leading-none sm:text-2xl",
-          accent ? "text-primary" : "text-content",
-        )}
-      >
-        {value}
+    <div className="min-w-0 rounded-xl bg-surface-container-lowest/95 px-3 py-2 shadow-raised">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
+        {label}
       </div>
-      <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
-        {unit}
+      <div className="tnum mt-0.5 truncate text-sm font-bold leading-none text-content">
+        {value}
+        {unit && <span className="ml-1 text-[10px] font-semibold text-muted">{unit}</span>}
       </div>
     </div>
   );
 }
 
 function formatElapsed(s: number): string {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
+  // AnimatedNumber hands the formatter fractional intermediates while it
+  // eases between ticks — floor so the HUD counts whole seconds only.
+  const whole = Math.floor(s);
+  const m = Math.floor(whole / 60);
+  const sec = whole % 60;
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
