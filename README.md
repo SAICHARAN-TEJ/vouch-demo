@@ -11,7 +11,7 @@ The application is designed around a simple product idea:
 
 Once GitHub Pages finishes its first deployment, the public demo will be:
 
-**vouch-demo-beige.vercel.app**
+**https://vouch-demo-beige.vercel.app/**
 
 Note : Use a mobile for an accurate depiction.
 
